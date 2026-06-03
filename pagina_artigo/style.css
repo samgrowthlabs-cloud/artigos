@@ -1,0 +1,26 @@
+.article-conteudo {
+    margin: 30px 0;
+    padding: 20px;
+    background: white;
+    border: 1px solid #dee2e6;
+}
+
+.comments-section {
+    margin-top: 40px;
+}
+
+#new-comment {
+    margin-top: 20px;
+}
+
+#new-comment textarea {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}

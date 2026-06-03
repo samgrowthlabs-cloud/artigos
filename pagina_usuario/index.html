@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Artigos Científicos</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main class="container">
+        <div id="profile-container"></div>
+
+        <!-- Abas -->
+        <div class="profile-tabs">
+            <button class="tab-btn active" data-tab="articles">📄 Artigos</button>
+            <button class="tab-btn" data-tab="following">👥 Seguindo</button>
+        </div>
+
+        <!-- Conteúdo das abas -->
+        <div id="articles-tab" class="tab-content active">
+            <div id="articles-list"></div>
+        </div>
+        <div id="following-tab" class="tab-content">
+            <div id="following-list" class="following-grid"></div>
+        </div>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

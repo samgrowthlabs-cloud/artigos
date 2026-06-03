@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo/Editar Artigo - Artigos Científicos</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main class="container">
+        <h2 id="form-title">Publicar Novo Artigo</h2>
+        <form id="article-form">
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" id="titulo" required>
+            </div>
+            <div class="form-group">
+                <label>Resumo</label>
+                <textarea id="resumo" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Conteúdo (use os botões para formatar)</label>
+                <div class="editor-toolbar">
+                    <button type="button" data-cmd="bold" title="Negrito"><strong>B</strong></button>
+                    <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
+                    <button type="button" data-cmd="underline" title="Sublinhado"><u>U</u></button>
+                    <button type="button" data-cmd="justifyLeft" title="Alinhar esquerda">⬅️</button>
+                    <button type="button" data-cmd="justifyCenter" title="Centralizar">⬌</button>
+                    <button type="button" data-cmd="justifyRight" title="Alinhar direita">➡️</button>
+                    <button type="button" data-cmd="insertOrderedList" title="Lista numerada">1.</button>
+                    <button type="button" data-cmd="insertUnorderedList" title="Lista com marcadores">•</button>
+                    <button type="button" data-cmd="createLink" title="Inserir link">🔗</button>
+                </div>
+                <div id="editor-content" contenteditable="true" class="editor-content"></div>
+                <textarea id="conteudo" style="display:none;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>PDF (arquivo)</label>
+                <input type="file" id="pdf-file" accept=".pdf">
+            </div>
+            <button type="submit" class="btn">Publicar / Atualizar</button>
+            <div id="error" class="error"></div>
+            <div id="success" class="success"></div>
+        </form>
+    </main>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

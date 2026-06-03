@@ -1,0 +1,92 @@
+/* Perfil */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background: #ffffff;
+    padding: 1.5rem;
+    border: 1px solid #e2e4e8;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+}
+.profile-cargo {
+    color: #5a626e;
+    margin-bottom: 0.5rem;
+}
+.profile-bio {
+    margin: 0.8rem 0;
+    background: #f8f9fc;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    border-left: 3px solid #2c6bcf;
+}
+.profile-stats {
+    display: flex;
+    gap: 1.2rem;
+    font-size: 0.85rem;
+    color: #2c6bcf;
+    margin-top: 0.8rem;
+}
+.btn-sm {
+    padding: 0.2rem 0.8rem;
+    font-size: 0.75rem;
+}
+.btn-primary {
+    background: #2c6bcf;
+    border-color: #2c6bcf;
+    color: white;
+}
+.btn-primary:hover {
+    background: #1e4f9e;
+}
+
+/* Abas */
+.profile-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid #e2e4e8;
+    margin-bottom: 1.5rem;
+}
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #5a626e;
+    border-radius: 20px 20px 0 0;
+}
+.tab-btn.active {
+    color: #2c6bcf;
+    background: #ffffff;
+    border-bottom: 2px solid #2c6bcf;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+
+/* Grid de seguindo */
+.following-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.following-card {
+    background: #ffffff;
+    border: 1px solid #e2e4e8;
+    border-radius: 14px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.user-cargo {
+    font-size: 0.7rem;
+    color: #5a626e;
+    margin-left: 0.5rem;
+}

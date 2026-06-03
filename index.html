@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Artigos Científicos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <main class="container">
+        <h1>Artigos Científicos</h1>
+        
+        <div class="filters">
+            <input type="text" id="search-input" placeholder="Pesquisar por título ou autor...">
+            <select id="order-select">
+                <option value="recent">Mais Recentes</option>
+                <option value="likes">Mais Curtidos</option>
+                <option value="views">Mais Visualizados</option>
+            </select>
+        </div>
+        
+        <div id="articles-list" class="articles-grid"></div>
+    </main>
+    
+    <script type="module" src="script.js"></script>
+</body>
+</html>
