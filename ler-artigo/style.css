@@ -1,7 +1,7 @@
 /* ==============================================
    BIDARTIGOS – Página de Leitura
    CSS responsivo, elegante e sem sobreposições
-   (estilo de fonte inspirado no Medium)
+   (corrigido: índice, compartilhamento e back-to-top)
 ============================================== */
 
 /* ---------- RESET & BASE ---------- */
@@ -14,7 +14,7 @@
 }
 
 body {
-  font-family: 'Charter', 'Georgia', 'Times New Roman', serif;  /* ← corpo em serifa estilo Medium */
+  font-family: 'Charter', 'Georgia', 'Times New Roman', serif;
   background: #fff;
   color: #111;
   line-height: 1.85;
@@ -58,6 +58,8 @@ nav a {
   text-decoration: none;
   color: #555;
   font-size: 0.9rem;
+  display: inline-block;  /* permite padding vertical */
+  padding: 0.8rem 0.5rem;
 }
 
 nav a:hover { color: #000; text-decoration: underline; }
@@ -86,7 +88,7 @@ nav a:hover { color: #000; text-decoration: underline; }
 
 /* ---------- TÍTULO E METADADOS ---------- */
 .article-title {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;  /* ← título sans-serif moderno */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
   font-size: 2.4rem;
   font-weight: 700;
   margin-bottom: 0.6rem;
@@ -152,10 +154,10 @@ nav a:hover { color: #000; text-decoration: underline; }
 
 /* ---------- CONTEÚDO ---------- */
 .article-body {
-  font-size: 1.25rem;                 /* ← tamanho maior, estilo Medium */
+  font-size: 1.25rem;
   line-height: 1.8;
   color: #1a1a1a;
-  font-family: 'Charter', 'Georgia', 'Times New Roman', serif;  /* ← serifa clara */
+  font-family: 'Charter', 'Georgia', 'Times New Roman', serif;
   font-weight: 400;
 }
 
@@ -283,6 +285,7 @@ nav a:hover { color: #000; text-decoration: underline; }
    ELEMENTOS FLUTUANTES (DESKTOP)
 ============================================== */
 
+/* Controles de fonte – canto inferior esquerdo */
 .typography-controls {
   position: fixed;
   bottom: 2rem;
@@ -314,6 +317,7 @@ nav a:hover { color: #000; text-decoration: underline; }
   border-color: #bbb;
 }
 
+/* Compartilhamento – lateral direita (centro vertical) */
 .share-buttons {
   position: fixed;
   top: 50%;
@@ -348,6 +352,7 @@ nav a:hover { color: #000; text-decoration: underline; }
   border-color: #bbb;
 }
 
+/* Índice lateral – canto superior direito (abaixo do header) */
 .article-index {
   position: fixed;
   top: 6rem;
@@ -365,7 +370,18 @@ nav a:hover { color: #000; text-decoration: underline; }
   box-shadow: 0 8px 24px rgba(0,0,0,0.04);
 }
 
-.index-toggle { display: none; }
+.index-toggle {
+  display: none; /* escondido no desktop */
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid #eee;
+}
 
 .article-index h4 {
   font-weight: 600;
@@ -398,6 +414,7 @@ nav a:hover { color: #000; text-decoration: underline; }
   font-size: 0.8rem;
 }
 
+/* Botão voltar ao topo – canto inferior direito */
 .back-to-top {
   position: fixed;
   bottom: 2rem;
@@ -421,9 +438,12 @@ nav a:hover { color: #000; text-decoration: underline; }
 
 /* ==============================================
    RESPONSIVIDADE – TABLET E MOBILE
+   (índice retrátil, compartilhamento reposicionado,
+   back-to-top mais alto)
 ============================================== */
 
 @media (max-width: 1024px) {
+  /* Índice vira bloco estático no topo do artigo, expansível */
   .article-index {
     position: static;
     width: 100%;
@@ -439,14 +459,7 @@ nav a:hover { color: #000; text-decoration: underline; }
   }
 
   .index-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    cursor: pointer;
-    color: #333;
-    font-size: 0.9rem;
-    padding: 0.5rem 0;
+    display: flex;  /* visível no mobile */
   }
 
   .index-content {
@@ -458,6 +471,7 @@ nav a:hover { color: #000; text-decoration: underline; }
     display: block;
   }
 
+  /* Controles de fonte: movem para direita inferior, horizontal */
   .typography-controls {
     bottom: 1.5rem;
     left: auto;
@@ -466,9 +480,43 @@ nav a:hover { color: #000; text-decoration: underline; }
     gap: 0.5rem;
   }
 
+  /* Compartilhamento: ao invés de esconder, vira barra fixa no rodapé */
   .share-buttons {
-    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #e0e0e0;
+    padding: 0.6rem 1rem;
+    z-index: 50;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
   }
+
+  .share-buttons button,
+  .share-buttons a {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: auto;
+    height: auto;
+    padding: 0.3rem;
+    color: #555;
+  }
+
+  /* Ajuste do botão voltar ao topo (mobile) – mais baixo, ainda centralizado */
+    .back-to-top {
+    bottom: 10%;   /* ou 6rem, se preferir fixo */
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    }
 }
 
 @media (max-width: 600px) {
@@ -477,7 +525,7 @@ nav a:hover { color: #000; text-decoration: underline; }
   }
 
   .article-container {
-    padding: 2rem 1rem 3rem;
+    padding: 2rem 1rem 4rem; /* espaço extra para a barra de compartilhamento */
   }
 
   .article-title {
@@ -489,14 +537,17 @@ nav a:hover { color: #000; text-decoration: underline; }
   }
 
   .typography-controls {
-    bottom: 1rem;
+    bottom: 4.5rem; /* ajusta para não colidir com a barra de compartilhamento */
     right: 1rem;
   }
 
-  .back-to-top {
-    bottom: 1rem;
-    right: 1rem;
-  }
+  /* Ajuste do botão voltar ao topo (mobile) – mais baixo, ainda centralizado */
+.back-to-top {
+  bottom: 8%;   /* ou 6rem, se preferir fixo */
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
   .related-list {
     grid-template-columns: 1fr;
@@ -544,4 +595,17 @@ nav a:hover { color: #000; text-decoration: underline; }
   padding: 3rem 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #c00;
+}
+
+.typography-controls {
+  display: none !important;
+}
+
+/* Garante que o botão voltar ao topo nunca seja escondido por engano */
+.back-to-top {
+  display: none !important; /* será exibido pelo JS quando necessário */
+}
+
+.back-to-top.visible {
+  display: flex !important;
 }
