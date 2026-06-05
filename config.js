@@ -1,0 +1,3 @@
+// config.js – Configuração central do Supabase
+const SUPABASE_URL = 'https://gyqkjunfnmgsawwmevbg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5cWtqdW5mbm1nc2F3d21ldmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTA1NjUsImV4cCI6MjA5NjAyNjU2NX0.DkBLm6j56U5pCrgcdwvz4zQRKan-qD__ideoj0O9xlM';
