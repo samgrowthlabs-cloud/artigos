@@ -52,7 +52,7 @@ function getPeriodFilter() {
 
 // ----- BUSCA -----
 async function fetchFilteredArticles(search = '', category = '', period = null) {
-  let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,created_at,category,tags&order=created_at.desc`;
+  let url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,created_at,category,tags,cover_image&order=created_at.desc`;
 
   if (category) url += `&category=eq.${encodeURIComponent(category)}`;
   if (period?.from) {
@@ -111,6 +111,13 @@ function renderArticles(articles) {
     link.href = `ler-artigo/index.html?id=${article.id}`;
     link.className = 'article-card';
 
+    // --- Capa (se existir) ---
+    let coverHtml = '';
+    if (article.cover_image) {
+      coverHtml = `<div class="article-cover-wrapper"><img src="${article.cover_image}" class="article-cover" loading="lazy" alt="Capa"></div>`;
+    }
+
+    // Conteúdo textual
     const left = document.createElement('div');
     left.className = 'article-info';
 
@@ -148,6 +155,11 @@ function renderArticles(articles) {
     dateSpan.className = 'article-date';
     dateSpan.textContent = formatDate(article.created_at);
 
+    // Monta o link com a capa (se houver)
+    link.innerHTML = ''; // limpa
+    if (coverHtml) {
+      link.insertAdjacentHTML('beforeend', coverHtml);
+    }
     link.appendChild(left);
     link.appendChild(dateSpan);
     articlesList.appendChild(link);

@@ -1,9 +1,8 @@
 // ==============================================
-// ler-artigo/script.js – Completo (com autor e índice mobile)
+// ler-artigo/script.js – Completo com CAPA (topo + relacionados) + AUTOR com foto e link
 // ==============================================
 
-
-const DEFAULT_FONT_SIZE = 3; // rem
+const DEFAULT_FONT_SIZE = 1.5; // rem
 
 const articleContent = document.getElementById('article-content');
 const progressBar = document.getElementById('progress-bar');
@@ -15,29 +14,6 @@ const indexToggle = document.getElementById('index-toggle');
 const relatedSection = document.getElementById('related-articles');
 const relatedList = document.getElementById('related-list');
 const backToTop = document.getElementById('back-to-top');
-
-
-
-
-
-function setupTypography() {
-  const body = document.querySelector('.article-body');
-  if (!body) return;
-
-  // Aplica o tamanho definido na variável
-  let size = DEFAULT_FONT_SIZE;
-  body.style.fontSize = `${size}rem`;
-
-  // Botões ajustam a partir do valor atual
-  fontSmaller.addEventListener('click', () => {
-    size = Math.max(0.8, size - 0.1);
-    body.style.fontSize = `${size}rem`;
-  });
-  fontLarger.addEventListener('click', () => {
-    size = Math.min(2.0, size + 0.1);
-    body.style.fontSize = `${size}rem`;
-  });
-}
 
 function getArticleId() {
   return new URLSearchParams(window.location.search).get('id');
@@ -61,7 +37,25 @@ async function fetchArticle(id) {
   }
 }
 
-// Utilitários
+async function fetchAuthor(authorId) {
+  if (!authorId) return null;
+  const url = `${SUPABASE_URL}/rest/v1/authors?id=eq.${authorId}&select=*`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error(`Erro ${res.status}`);
+    const data = await res.json();
+    return data.length ? data[0] : null;
+  } catch (e) {
+    console.error('Erro ao carregar autor:', e);
+    return null;
+  }
+}
+
 function calculateReadingTime(text) {
   const words = text.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
@@ -77,7 +71,6 @@ function formatDate(dateString) {
   });
 }
 
-// Views e likes
 async function trackView(articleId) {
   const key = `bidartigos_viewed_${articleId}`;
   if (localStorage.getItem(key)) return;
@@ -114,7 +107,6 @@ async function handleLike(articleId, button) {
   } catch (e) { console.warn('Erro like:', e); }
 }
 
-// Fontes
 function buildSourcesHTML(sourceField) {
   if (!sourceField) return '<div class="article-source"><span class="source-label">Fontes</span><p>não informadas</p></div>';
   try {
@@ -130,7 +122,6 @@ function buildSourcesHTML(sourceField) {
   return `<div class="article-source"><span class="source-label">Fonte</span><p>${escapeHtml(sourceField)}</p></div>`;
 }
 
-// Índice automático (extrai h2 e h3)
 function generateIndex(content) {
   const container = document.createElement('div');
   container.innerHTML = content;
@@ -159,21 +150,18 @@ function buildIndexNav(items) {
     a.addEventListener('click', (e) => {
       e.preventDefault();
       document.getElementById(item.id).scrollIntoView({ behavior: 'smooth' });
-      // Fecha índice mobile se aberto
       if (window.innerWidth <= 1024) articleIndex.classList.remove('open');
     });
     indexNav.appendChild(a);
   });
 }
 
-// Toggle do índice em telas menores
 if (indexToggle) {
   indexToggle.addEventListener('click', () => {
     articleIndex.classList.toggle('open');
   });
 }
 
-// Barra de progresso
 function setupProgressBar() {
   window.addEventListener('scroll', () => {
     const article = document.querySelector('.article-container');
@@ -188,22 +176,6 @@ function setupProgressBar() {
   });
 }
 
-// Tipografia variável
-function setupTypography() {
-  const body = document.querySelector('.article-body');
-  if (!body) return;
-  let size = parseFloat(getComputedStyle(body).fontSize);
-  fontSmaller.addEventListener('click', () => {
-    size = Math.max(0.9, size - 0.1);
-    body.style.fontSize = `${size}rem`;
-  });
-  fontLarger.addEventListener('click', () => {
-    size = Math.min(2.2, size + 0.1);
-    body.style.fontSize = `${size}rem`;
-  });
-}
-
-// Voltar ao topo
 function setupBackToTopBtn() {
   window.addEventListener('scroll', () => {
     backToTop.classList.toggle('visible', window.scrollY > 400);
@@ -211,18 +183,35 @@ function setupBackToTopBtn() {
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
-// Compartilhamento
 function setupShareButtons(title) {
   const url = window.location.href;
-  document.getElementById('share-copy').addEventListener('click', () => {
-    navigator.clipboard.writeText(url).then(() => alert('Link copiado!'));
-  });
-  document.getElementById('share-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(title)}%20${encodeURIComponent(url)}`;
-  document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+  const encodedTitle = encodeURIComponent(title || "BIDARTIGOS");
+  const encodedUrl = encodeURIComponent(url);
+
+  const copyBtn = document.getElementById('share-copy');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(url).then(() => alert('Link copiado!'));
+    });
+  }
+
+  const waLink = document.getElementById('share-whatsapp');
+  if (waLink) {
+    waLink.href = `https://api.whatsapp.com/send?text=${encodedTitle}%20-%20${encodedUrl}`;
+    waLink.setAttribute('target', '_blank');
+    waLink.setAttribute('rel', 'noopener noreferrer');
+  }
+
+  const twLink = document.getElementById('share-twitter');
+  if (twLink) {
+    twLink.href = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
+    twLink.setAttribute('target', '_blank');
+    twLink.setAttribute('rel', 'noopener noreferrer');
+  }
 }
 
-// Renderização principal
-function renderArticle(article) {
+// ---------- RENDER PRINCIPAL COM CAPA E AUTOR (com foto e link) ----------
+async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../index.html">← Voltar</a></div>`;
     document.title = 'Artigo não encontrado – BIDARTIGOS';
@@ -231,6 +220,12 @@ function renderArticle(article) {
 
   document.title = `${article.title} – BIDARTIGOS`;
 
+  // Buscar dados do autor (se existir author_id)
+  let authorData = null;
+  if (article.author_id) {
+    authorData = await fetchAuthor(article.author_id);
+  }
+
   const wordCount = countWords(article.content);
   const readingTime = calculateReadingTime(article.content);
   const liked = localStorage.getItem(`bidartigos_liked_${article.id}`);
@@ -238,10 +233,22 @@ function renderArticle(article) {
     ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Curtido`
     : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Curtir`;
 
-  // Autor
-  const authorHTML = article.author
-    ? `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`
-    : '';
+  // Monta o HTML do autor (com foto, link e verificação)
+  let authorHTML = '';
+  if (authorData) {
+    const avatarUrl = authorData.avatar_url || `https://ui-avatars.com/api/?background=0D8F81&color=fff&name=${encodeURIComponent(authorData.name)}`;
+    const verifiedBadge = authorData.verified ? '<span class="verified-badge-small" title="Verificado">✓</span>' : '';
+    authorHTML = `
+      <span class="meta-author">
+        <img src="${avatarUrl}" class="author-avatar-small" onerror="this.src='https://ui-avatars.com/api/?background=ccc&name=${encodeURIComponent(authorData.name)}'">
+        <a href="../perfil_autor/index.html?id=${authorData.id}">${escapeHtml(authorData.name)}</a>
+        ${verifiedBadge}
+      </span>
+    `;
+  } else if (article.author) {
+    // Fallback para artigos antigos (sem author_id)
+    authorHTML = `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`;
+  }
 
   const categoryHTML = article.category
     ? `<span class="meta-category"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> ${escapeHtml(article.category)}</span>`
@@ -257,7 +264,13 @@ function renderArticle(article) {
   const { updatedContent, indexItems } = generateIndex(article.content);
   const sourcesHTML = buildSourcesHTML(article.source);
 
+  // Capa no topo
+  const coverHTML = article.cover_image
+    ? `<img src="${article.cover_image}" class="article-cover-full" loading="lazy" alt="Capa do artigo">`
+    : '';
+
   articleContent.innerHTML = `
+    ${coverHTML}
     <h1 class="article-title">${escapeHtml(article.title)}</h1>
     <div class="article-meta">
       <span>${formatDate(article.created_at)}</span>
@@ -279,17 +292,16 @@ function renderArticle(article) {
 
   buildIndexNav(indexItems);
   setupProgressBar();
-  setupTypography();
 
   const likeBtn = document.getElementById('like-button');
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
 }
 
-// Artigos relacionados
+// ---------- ARTIGOS RELACIONADOS COM CAPA ----------
 async function loadRelatedArticles(currentId, category) {
   if (!category) { relatedSection.style.display = 'none'; return; }
   try {
-    const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at&category=eq.${encodeURIComponent(category)}&id=neq.${currentId}&limit=3&order=created_at.desc`;
+    const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image&category=eq.${encodeURIComponent(category)}&id=neq.${currentId}&limit=3&order=created_at.desc`;
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
@@ -310,12 +322,25 @@ function renderRelated(articles) {
     const link = document.createElement('a');
     link.href = `index.html?id=${a.id}`;
     link.className = 'related-card';
-    link.innerHTML = `<h3>${escapeHtml(a.title)}</h3><div class="related-date">${formatDate(a.created_at)}</div>`;
+
+    let coverRelated = '';
+    if (a.cover_image) {
+      coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
+    }
+
+    link.innerHTML = `
+      <div class="related-card-inner">
+        ${coverRelated}
+        <div class="related-card-content">
+          <h3>${escapeHtml(a.title)}</h3>
+          <div class="related-date">${formatDate(a.created_at)}</div>
+        </div>
+      </div>
+    `;
     relatedList.appendChild(link);
   });
 }
 
-// Escape HTML
 function escapeHtml(text) {
   if (!text) return '';
   const div = document.createElement('div');
@@ -323,7 +348,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Inicialização
+// ---------- INICIALIZAÇÃO ----------
 async function init() {
   const id = getArticleId();
   if (!id) {
@@ -333,12 +358,11 @@ async function init() {
 
   const article = await fetchArticle(id);
   if (article) {
-    renderArticle(article);
+    await renderArticle(article);      // <-- agora é async
     setupShareButtons(article.title);
     setupBackToTopBtn();
     await trackView(id);
     loadRelatedArticles(id, article.category);
-    // Atualiza views após track
     const updated = await fetchArticle(id);
     if (updated) {
       const spans = document.querySelectorAll('.article-meta span');
@@ -349,7 +373,7 @@ async function init() {
       });
     }
   } else {
-    renderArticle(null);
+    await renderArticle(null);
   }
 }
 
