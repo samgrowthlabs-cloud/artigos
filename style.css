@@ -415,3 +415,15 @@ nav a.active {
   }
 }
 
+.article-author,
+.article-metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.article-metrics {
+  display: flex;
+  gap: 1rem;
+  margin: 0.3rem 0;
+  color: #444;
+}
