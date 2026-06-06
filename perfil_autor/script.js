@@ -1,4 +1,4 @@
-// perfil_autor/script.js
+// perfil_autor/script.js – Perfil do autor com badge de produtividade
 const profileContent = document.getElementById('profile-content');
 
 function getAuthorId() {
@@ -24,7 +24,6 @@ async function fetchAuthor(id) {
 }
 
 async function fetchAuthorArticles(authorId) {
-  // Seleciona também cover_image
   const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image&author_id=eq.${authorId}&order=created_at.desc`;
   try {
     const res = await fetch(url, {
@@ -54,12 +53,40 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// ----- BADGE DE PRODUTIVIDADE (conta posts no mês atual) -----
+function getMonthlyPostCount(articles) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  return articles.filter(article => {
+    const created = new Date(article.created_at);
+    return created.getFullYear() === currentYear && created.getMonth() === currentMonth;
+  }).length;
+}
+
+function getProductivityBadge(count) {
+  if (count >= 10) {
+    return {
+      class: 'ultra-productive',
+      text: '⚡ Ultra Produtivo (10+ posts/mês)',
+      icon: '⚡'
+    };
+  } else if (count >= 5) {
+    return {
+      class: 'productive',
+      text: '🔥 Produtivo (5+ posts/mês)',
+      icon: '🔥'
+    };
+  }
+  return null;
+}
+
 function renderProfile(author, articles) {
   if (!author) {
     profileContent.innerHTML = `
       <div class="profile-card" style="text-align:center;">
         <p style="color:#c00;">Autor não encontrado.</p>
-        <a href="../index.html" style="color:#111;">← Voltar para o início</a>
+        <a href="../index.html">← Voltar para o início</a>
       </div>
     `;
     document.title = 'Autor não encontrado – BIDARTIGOS';
@@ -68,10 +95,10 @@ function renderProfile(author, articles) {
 
   document.title = `${author.name} – Perfil | BIDARTIGOS`;
 
-  // Avatar fallback (iniciais em cinza)
+  // Avatar fallback
   const avatarUrl = author.avatar_url || `https://ui-avatars.com/api/?background=eee&color=333&name=${encodeURIComponent(author.name)}`;
 
-  // Selo verificado (preto e branco)
+  // Selo verificado
   const verifiedBadge = author.verified
     ? `<span class="verified-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -82,7 +109,17 @@ function renderProfile(author, articles) {
       </span>`
     : '';
 
-  // Links sociais (ícones em preto/cinza)
+  // Badge de produtividade
+  const monthlyCount = getMonthlyPostCount(articles);
+  const prodBadge = getProductivityBadge(monthlyCount);
+  let prodBadgeHtml = '';
+  if (prodBadge) {
+    prodBadgeHtml = `<div class="productivity-badge ${prodBadge.class}" title="${prodBadge.text}">
+      ${prodBadge.icon} ${prodBadge.text}
+    </div>`;
+  }
+
+  // Links sociais
   let socialLinks = '';
   if (author.twitter) {
     socialLinks += `<a href="https://twitter.com/${author.twitter.replace('@', '')}" target="_blank" rel="noopener">
@@ -99,26 +136,23 @@ function renderProfile(author, articles) {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Site
     </a>`;
   }
-  // Instagram
   if (author.instagram) {
     socialLinks += `<a href="https://instagram.com/${author.instagram.replace('@', '')}" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram
     </a>`;
   }
-  // TikTok
   if (author.tiktok) {
     socialLinks += `<a href="https://tiktok.com/@${author.tiktok.replace('@', '')}" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg> TikTok
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg> TikTok
     </a>`;
   }
-  // YouTube
   if (author.youtube) {
     let youtubeUrl = author.youtube;
     if (!youtubeUrl.startsWith('http')) {
       youtubeUrl = `https://youtube.com/${author.youtube.replace('@', '@')}`;
     }
     socialLinks += `<a href="${youtubeUrl}" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg> YouTube
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg> YouTube
     </a>`;
   }
 
@@ -131,7 +165,7 @@ function renderProfile(author, articles) {
         <div class="articles-grid">
           ${articles.map(art => `
             <a href="../ler-artigo/index.html?id=${art.id}" class="article-card">
-              ${art.cover_image ? `<img src="${art.cover_image}" class="article-cover" loading="lazy" alt="">` : '<div class="article-cover" style="background:#f5f5f5;"></div>'}
+              ${art.cover_image ? `<img src="${art.cover_image}" class="article-cover" loading="lazy">` : '<div class="article-cover" style="background:#f5f5f5;"></div>'}
               <div class="article-info">
                 <div class="article-title">${escapeHtml(art.title)}</div>
                 <div class="article-date">${formatDate(art.created_at)}</div>
@@ -156,6 +190,7 @@ function renderProfile(author, articles) {
             ${escapeHtml(author.name)}
             ${verifiedBadge}
           </div>
+          ${prodBadgeHtml}
           ${socialLinks ? `<div class="profile-meta">${socialLinks}</div>` : ''}
         </div>
       </div>
@@ -168,15 +203,9 @@ function renderProfile(author, articles) {
 async function init() {
   const id = getAuthorId();
   if (!id) {
-    profileContent.innerHTML = `
-      <div class="profile-card" style="text-align:center;">
-        <p>ID do autor não informado.</p>
-        <a href="../index.html">← Voltar</a>
-      </div>
-    `;
+    profileContent.innerHTML = `<div class="profile-card" style="text-align:center;"><p>ID do autor não informado.</p><a href="../index.html">← Voltar</a></div>`;
     return;
   }
-
   const author = await fetchAuthor(id);
   if (author) {
     const articles = await fetchAuthorArticles(id);

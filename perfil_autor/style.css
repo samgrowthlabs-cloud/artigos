@@ -275,3 +275,46 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Badges de produtividade */
+.productivity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 40px;
+  background: #f5f5f5;
+  color: #333;
+  margin-top: 0.3rem;
+  width: fit-content;
+}
+
+.productive {
+  background: #fff7e6;
+  color: #b45f06;
+  box-shadow: 0 0 4px rgba(255, 160, 0, 0.4);
+  border: 1px solid #ffd966;
+}
+
+.ultra-productive {
+  background: #fff0e0;
+  color: #c45100;
+  box-shadow: 0 0 12px rgba(255, 100, 0, 0.6);
+  border: 1px solid #ffa559;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 100, 0, 0.3); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 100, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 100, 0, 0); }
+}
+
+/* Ajuste para o badge ao lado do nome no artigo */
+.meta-author .productivity-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  margin-left: 0.3rem;
+}

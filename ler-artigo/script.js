@@ -210,6 +210,36 @@ function setupShareButtons(title) {
   }
 }
 
+// ----- CONTAGEM DE POSTS NO MÊS (para badge) -----
+async function fetchAuthorMonthlyCount(authorId) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const startDate = new Date(year, month, 1).toISOString();
+  const endDate = new Date(year, month + 1, 0, 23, 59, 59).toISOString();
+  const url = `${SUPABASE_URL}/rest/v1/articles?select=id&author_id=eq.${authorId}&created_at=gte.${startDate}&created_at=lte.${endDate}`;
+  try {
+    const res = await fetch(url, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.length;
+  } catch (e) {
+    console.warn('Erro ao contar posts mensais:', e);
+    return 0;
+  }
+}
+
+function getProductivityBadge(count) {
+  if (count >= 10) {
+    return { class: 'ultra-productive', text: '⚡ Ultra Produtivo', icon: '⚡' };
+  } else if (count >= 5) {
+    return { class: 'productive', text: '🔥 Produtivo', icon: '🔥' };
+  }
+  return null;
+}
+
 // ---------- RENDER PRINCIPAL COM CAPA E AUTOR (com foto e link) ----------
 async function renderArticle(article) {
   if (!article) {
@@ -236,6 +266,9 @@ async function renderArticle(article) {
   // Monta o HTML do autor (com foto, link e verificação)
   let authorHTML = '';
   if (authorData) {
+    const monthlyCount = await fetchAuthorMonthlyCount(authorData.id);
+    const prodBadge = getProductivityBadge(monthlyCount);
+    const badgeHtml = prodBadge ? `<span class="productivity-badge ${prodBadge.class}" title="${prodBadge.text}">${prodBadge.icon}</span>` : '';
     const avatarUrl = authorData.avatar_url || `https://ui-avatars.com/api/?background=0D8F81&color=fff&name=${encodeURIComponent(authorData.name)}`;
     const verifiedBadge = authorData.verified ? '<span class="verified-badge-small" title="Verificado">✓</span>' : '';
     authorHTML = `
@@ -243,8 +276,11 @@ async function renderArticle(article) {
         <img src="${avatarUrl}" class="author-avatar-small" onerror="this.src='https://ui-avatars.com/api/?background=ccc&name=${encodeURIComponent(authorData.name)}'">
         <a href="../perfil_autor/index.html?id=${authorData.id}">${escapeHtml(authorData.name)}</a>
         ${verifiedBadge}
+        ${badgeHtml}
       </span>
     `;
+  } else if (article.author) {
+    authorHTML = `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`;
   } else if (article.author) {
     // Fallback para artigos antigos (sem author_id)
     authorHTML = `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`;
