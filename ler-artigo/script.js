@@ -1,5 +1,5 @@
 // ==============================================
-// ler-artigo/script.js – Completo com CAPA (topo + relacionados) + AUTOR com foto e link
+// ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS e AUDIO
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -240,7 +240,91 @@ function getProductivityBadge(count) {
   return null;
 }
 
-// ---------- RENDER PRINCIPAL COM CAPA E AUTOR (com foto e link) ----------
+// ---------- LEITURA EM VOZ ALTA (Web Speech API) ----------
+let speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+let currentArticleText = '';
+
+function getPlainTextFromArticle() {
+  const articleBody = document.querySelector('.article-body');
+  if (!articleBody) return '';
+  return articleBody.innerText || articleBody.textContent || '';
+}
+
+function startReading(text) {
+  if (!text) return;
+  stopReading();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'pt-BR';
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  utterance.onend = () => {
+    const playBtn = document.getElementById('audio-play');
+    const pauseBtn = document.getElementById('audio-pause');
+    if (playBtn) playBtn.style.display = 'inline-flex';
+    if (pauseBtn) pauseBtn.style.display = 'none';
+    currentUtterance = null;
+  };
+  currentUtterance = utterance;
+  speechSynthesis.speak(utterance);
+  const playBtn = document.getElementById('audio-play');
+  const pauseBtn = document.getElementById('audio-pause');
+  if (playBtn) playBtn.style.display = 'none';
+  if (pauseBtn) pauseBtn.style.display = 'inline-flex';
+}
+
+function pauseReading() {
+  if (speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause();
+    const playBtn = document.getElementById('audio-play');
+    const pauseBtn = document.getElementById('audio-pause');
+    if (playBtn) playBtn.style.display = 'inline-flex';
+    if (pauseBtn) pauseBtn.style.display = 'none';
+  }
+}
+
+function resumeReading() {
+  if (speechSynthesis.paused) {
+    speechSynthesis.resume();
+    const playBtn = document.getElementById('audio-play');
+    const pauseBtn = document.getElementById('audio-pause');
+    if (playBtn) playBtn.style.display = 'none';
+    if (pauseBtn) pauseBtn.style.display = 'inline-flex';
+  }
+}
+
+function stopReading() {
+  if (speechSynthesis.speaking || speechSynthesis.paused) {
+    speechSynthesis.cancel();
+  }
+  currentUtterance = null;
+  const playBtn = document.getElementById('audio-play');
+  const pauseBtn = document.getElementById('audio-pause');
+  if (playBtn) playBtn.style.display = 'inline-flex';
+  if (pauseBtn) pauseBtn.style.display = 'none';
+}
+
+function setupAudioButtons() {
+  const playBtn = document.getElementById('audio-play');
+  const pauseBtn = document.getElementById('audio-pause');
+  const stopBtn = document.getElementById('audio-stop');
+  if (!playBtn || !pauseBtn || !stopBtn) return;
+
+  currentArticleText = getPlainTextFromArticle();
+
+  playBtn.addEventListener('click', () => {
+    if (speechSynthesis.paused) {
+      resumeReading();
+    } else {
+      startReading(currentArticleText);
+    }
+  });
+  pauseBtn.addEventListener('click', pauseReading);
+  stopBtn.addEventListener('click', stopReading);
+}
+
+// ---------- RENDER PRINCIPAL COM CAPA E AUTOR (com foto, link e badge) ----------
 async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../index.html">← Voltar</a></div>`;
@@ -263,7 +347,7 @@ async function renderArticle(article) {
     ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Curtido`
     : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Curtir`;
 
-  // Monta o HTML do autor (com foto, link e verificação)
+  // Monta o HTML do autor (com foto, link, verificação e badge de produtividade)
   let authorHTML = '';
   if (authorData) {
     const monthlyCount = await fetchAuthorMonthlyCount(authorData.id);
@@ -280,9 +364,6 @@ async function renderArticle(article) {
       </span>
     `;
   } else if (article.author) {
-    authorHTML = `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`;
-  } else if (article.author) {
-    // Fallback para artigos antigos (sem author_id)
     authorHTML = `<span class="meta-author">Por: ${escapeHtml(article.author)}</span>`;
   }
 
@@ -306,28 +387,50 @@ async function renderArticle(article) {
     : '';
 
   articleContent.innerHTML = `
-    ${coverHTML}
-    <h1 class="article-title">${escapeHtml(article.title)}</h1>
-    <div class="article-meta">
-      <span>${formatDate(article.created_at)}</span>
-      ${authorHTML}
-      ${categoryHTML}
-      <span>${wordCount} palavras</span>
-      <span>${readingTime} min de leitura</span>
-      <span>${article.views ?? 0} visualizações</span>
-      <span>${article.likes ?? 0} curtidas</span>
-    </div>
-    ${summaryHTML}
-    ${tagsHTML}
-    <div class="article-body">${updatedContent}</div>
-    ${sourcesHTML}
-    <div class="article-actions">
-      <button id="like-button" class="like-button ${liked ? 'liked' : ''}">${likeIcon}</button>
-    </div>
-  `;
+  ${coverHTML}
+  <h1 class="article-title">${escapeHtml(article.title)}</h1>
+  
+  <!-- Botões de áudio no topo -->
+  <div class="audio-controls-top">
+    <button id="audio-play" title="Ouvir artigo" class="audio-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    </button>
+    <button id="audio-pause" title="Pausar" class="audio-btn" style="display: none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="6" y="4" width="4" height="16"/>
+        <rect x="14" y="4" width="4" height="16"/>
+      </svg>
+    </button>
+    <button id="audio-stop" title="Parar" class="audio-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="6" y="6" width="12" height="12"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="article-meta">
+    <span>${formatDate(article.created_at)}</span>
+    ${authorHTML}
+    ${categoryHTML}
+    <span>${wordCount} palavras</span>
+    <span>${readingTime} min de leitura</span>
+    <span>${article.views ?? 0} visualizações</span>
+    <span>${article.likes ?? 0} curtidas</span>
+  </div>
+  ${summaryHTML}
+  ${tagsHTML}
+  <div class="article-body">${updatedContent}</div>
+  ${sourcesHTML}
+  <div class="article-actions">
+    <button id="like-button" class="like-button ${liked ? 'liked' : ''}">${likeIcon}</button>
+  </div>
+`;
 
   buildIndexNav(indexItems);
   setupProgressBar();
+  setupAudioButtons();   // <-- ativa os botões de áudio após o DOM do artigo estar pronto
 
   const likeBtn = document.getElementById('like-button');
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
@@ -394,7 +497,7 @@ async function init() {
 
   const article = await fetchArticle(id);
   if (article) {
-    await renderArticle(article);      // <-- agora é async
+    await renderArticle(article);
     setupShareButtons(article.title);
     setupBackToTopBtn();
     await trackView(id);
