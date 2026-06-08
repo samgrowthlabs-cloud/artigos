@@ -1,5 +1,6 @@
 // ==============================================
-// ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS e AUDIO
+// ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS,
+//                        ÁUDIO, TRENDING, MODO ESCURO, CITAÇÃO, IMPRESSÃO
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -14,6 +15,53 @@ const indexToggle = document.getElementById('index-toggle');
 const relatedSection = document.getElementById('related-articles');
 const relatedList = document.getElementById('related-list');
 const backToTop = document.getElementById('back-to-top');
+
+// ---------- MODO ESCURO ----------
+let darkMode = localStorage.getItem('bidartigos_dark_mode') === 'true';
+function applyDarkMode() {
+  if (darkMode) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  const darkBtn = document.getElementById('dark-mode-btn');
+  if (darkBtn) {
+    darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
+  }
+}
+function toggleDarkMode() {
+  darkMode = !darkMode;
+  localStorage.setItem('bidartigos_dark_mode', darkMode);
+  applyDarkMode();
+  const darkBtn = document.getElementById('dark-mode-btn');
+  if (darkBtn) {
+    const svg = darkBtn.querySelector('svg');
+    if (svg) {
+      if (darkMode) {
+        // Ícone de sol (modo escuro ativo)
+        svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
+      } else {
+        // Ícone de lua (modo claro)
+        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      }
+    }
+    darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
+  }
+}
+
+// ---------- CITAÇÃO E IMPRESSÃO ----------
+function generateCitation(article) {
+  const authorName = article.author_name || article.author || 'Autor desconhecido';
+  const date = new Date(article.created_at).toLocaleDateString('pt-BR');
+  const title = article.title;
+  const url = window.location.href;
+  return `${authorName}. ${title}. BIDARTIGOS, ${date}. Disponível em: ${url}. Acesso em: ${new Date().toLocaleDateString('pt-BR')}.`;
+}
+function copyCitation(article) {
+  navigator.clipboard.writeText(generateCitation(article))
+    .then(() => alert('Citação copiada!'))
+    .catch(() => alert('Não foi possível copiar.'));
+}
+function printArticle() {
+  window.print();
+}
 
 function getArticleId() {
   return new URLSearchParams(window.location.search).get('id');
@@ -187,21 +235,16 @@ function setupShareButtons(title) {
   const url = window.location.href;
   const encodedTitle = encodeURIComponent(title || "BIDARTIGOS");
   const encodedUrl = encodeURIComponent(url);
-
   const copyBtn = document.getElementById('share-copy');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(url).then(() => alert('Link copiado!'));
-    });
-  }
-
+  if (copyBtn) copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(url).then(() => alert('Link copiado!'));
+  });
   const waLink = document.getElementById('share-whatsapp');
   if (waLink) {
     waLink.href = `https://api.whatsapp.com/send?text=${encodedTitle}%20-%20${encodedUrl}`;
     waLink.setAttribute('target', '_blank');
     waLink.setAttribute('rel', 'noopener noreferrer');
   }
-
   const twLink = document.getElementById('share-twitter');
   if (twLink) {
     twLink.href = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
@@ -210,7 +253,7 @@ function setupShareButtons(title) {
   }
 }
 
-// ----- CONTAGEM DE POSTS NO MÊS (para badge) -----
+// ----- CONTAGEM DE POSTS NO MÊS (para badge do autor) -----
 async function fetchAuthorMonthlyCount(authorId) {
   const now = new Date();
   const year = now.getFullYear();
@@ -232,11 +275,8 @@ async function fetchAuthorMonthlyCount(authorId) {
 }
 
 function getProductivityBadge(count) {
-  if (count >= 10) {
-    return { class: 'ultra-productive', text: '⚡ Ultra Produtivo', icon: '⚡' };
-  } else if (count >= 5) {
-    return { class: 'productive', text: '🔥 Produtivo', icon: '🔥' };
-  }
+  if (count >= 10) return { class: 'ultra-productive', text: '⚡ Ultra Produtivo', icon: '⚡' };
+  if (count >= 5) return { class: 'productive', text: '🔥 Produtivo', icon: '🔥' };
   return null;
 }
 
@@ -310,31 +350,26 @@ function setupAudioButtons() {
   const pauseBtn = document.getElementById('audio-pause');
   const stopBtn = document.getElementById('audio-stop');
   if (!playBtn || !pauseBtn || !stopBtn) return;
-
   currentArticleText = getPlainTextFromArticle();
-
   playBtn.addEventListener('click', () => {
-    if (speechSynthesis.paused) {
-      resumeReading();
-    } else {
-      startReading(currentArticleText);
-    }
+    if (speechSynthesis.paused) resumeReading();
+    else startReading(currentArticleText);
   });
   pauseBtn.addEventListener('click', pauseReading);
   stopBtn.addEventListener('click', stopReading);
 }
 
-// ---------- RENDER PRINCIPAL COM CAPA E AUTOR (com foto, link e badge) ----------
+// ---------- RENDER PRINCIPAL (com trending, toolbar, etc.) ----------
 async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../index.html">← Voltar</a></div>`;
+    renderCodeAndMath();
     document.title = 'Artigo não encontrado – BIDARTIGOS';
     return;
   }
 
   document.title = `${article.title} – BIDARTIGOS`;
 
-  // Buscar dados do autor (se existir author_id)
   let authorData = null;
   if (article.author_id) {
     authorData = await fetchAuthor(article.author_id);
@@ -347,7 +382,6 @@ async function renderArticle(article) {
     ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Curtido`
     : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Curtir`;
 
-  // Monta o HTML do autor (com foto, link, verificação e badge de produtividade)
   let authorHTML = '';
   if (authorData) {
     const monthlyCount = await fetchAuthorMonthlyCount(authorData.id);
@@ -372,7 +406,6 @@ async function renderArticle(article) {
     : '';
 
   const summaryHTML = article.summary ? `<div class="article-summary">${escapeHtml(article.summary)}</div>` : '';
-
   let tagsHTML = '';
   if (Array.isArray(article.tags) && article.tags.length) {
     tagsHTML = '<div class="article-tags">' + article.tags.map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('') + '</div>';
@@ -380,63 +413,109 @@ async function renderArticle(article) {
 
   const { updatedContent, indexItems } = generateIndex(article.content);
   const sourcesHTML = buildSourcesHTML(article.source);
+  const coverHTML = article.cover_image ? `<img src="${article.cover_image}" class="article-cover-full" loading="lazy" alt="Capa do artigo">` : '';
 
-  // Capa no topo
-  const coverHTML = article.cover_image
-    ? `<img src="${article.cover_image}" class="article-cover-full" loading="lazy" alt="Capa do artigo">`
-    : '';
+  // Badge de tendência
+  const trendingBadge = article.is_trending ? '<span class="trending-badge-article">🔥 Em alta</span>' : '';
 
   articleContent.innerHTML = `
-  ${coverHTML}
-  <h1 class="article-title">${escapeHtml(article.title)}</h1>
-  
-  <!-- Botões de áudio no topo -->
-  <div class="audio-controls-top">
-    <button id="audio-play" title="Ouvir artigo" class="audio-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="5 3 19 12 5 21 5 3"/>
-      </svg>
-    </button>
-    <button id="audio-pause" title="Pausar" class="audio-btn" style="display: none;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="6" y="4" width="4" height="16"/>
-        <rect x="14" y="4" width="4" height="16"/>
-      </svg>
-    </button>
-    <button id="audio-stop" title="Parar" class="audio-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="6" y="6" width="12" height="12"/>
-      </svg>
-    </button>
-  </div>
+    ${coverHTML}
+    <h1 class="article-title">${escapeHtml(article.title)} ${trendingBadge}</h1>
+    
+    <!-- Barra de ferramentas (modo escuro, citação, impressão) -->
+    <div class="article-toolbar">
+      <button id="dark-mode-btn" class="tool-btn" title="Alternar modo escuro">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button id="citation-btn" class="tool-btn" title="Copiar citação">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v16h16V4H4z M8 9h8M8 13h6"/>
+          <line x1="12" y1="17" x2="12" y2="19"/>
+        </svg>
+      </button>
+      <button id="print-btn" class="tool-btn" title="Imprimir / PDF">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9V3h12v6M6 21h12v-6H6v6zM4 15h16v4H4z"/>
+        </svg>
+      </button>
+    </div>
 
-  <div class="article-meta">
-    <span>${formatDate(article.created_at)}</span>
-    ${authorHTML}
-    ${categoryHTML}
-    <span>${wordCount} palavras</span>
-    <span>${readingTime} min de leitura</span>
-    <span>${article.views ?? 0} visualizações</span>
-    <span>${article.likes ?? 0} curtidas</span>
-  </div>
-  ${summaryHTML}
-  ${tagsHTML}
-  <div class="article-body">${updatedContent}</div>
-  ${sourcesHTML}
-  <div class="article-actions">
-    <button id="like-button" class="like-button ${liked ? 'liked' : ''}">${likeIcon}</button>
-  </div>
-`;
+    <!-- Botões de áudio -->
+    <div class="audio-controls-top">
+      <button id="audio-play" title="Ouvir artigo" class="audio-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      </button>
+      <button id="audio-pause" title="Pausar" class="audio-btn" style="display: none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="6" y="4" width="4" height="16"/>
+          <rect x="14" y="4" width="4" height="16"/>
+        </svg>
+      </button>
+      <button id="audio-stop" title="Parar" class="audio-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="6" y="6" width="12" height="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="article-meta">
+      <span>${formatDate(article.created_at)}</span>
+      ${authorHTML}
+      ${categoryHTML}
+      <span>${wordCount} palavras</span>
+      <span>${readingTime} min de leitura</span>
+      <span>${article.views ?? 0} visualizações</span>
+      <span>${article.likes ?? 0} curtidas</span>
+    </div>
+    ${summaryHTML}
+    ${tagsHTML}
+    <div class="article-body">${updatedContent}</div>
+    ${sourcesHTML}
+    <div class="article-actions">
+      <button id="like-button" class="like-button ${liked ? 'liked' : ''}">${likeIcon}</button>
+    </div>
+  `;
+
+  // 🔥 RENDERIZA CÓDIGO E FÓRMULAS MATEMÁTICAS
+  renderCodeAndMath();
 
   buildIndexNav(indexItems);
   setupProgressBar();
-  setupAudioButtons();   // <-- ativa os botões de áudio após o DOM do artigo estar pronto
+  setupAudioButtons();
+
+  // Eventos da barra de ferramentas
+  const darkBtn = document.getElementById('dark-mode-btn');
+  if (darkBtn) darkBtn.addEventListener('click', toggleDarkMode);
+  const citationBtn = document.getElementById('citation-btn');
+  if (citationBtn) citationBtn.addEventListener('click', () => copyCitation(article));
+  const printBtn = document.getElementById('print-btn');
+  if (printBtn) printBtn.addEventListener('click', printArticle);
 
   const likeBtn = document.getElementById('like-button');
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
 }
 
-// ---------- ARTIGOS RELACIONADOS COM CAPA ----------
+// 👇 INSIRA A FUNÇÃO AQUI
+function renderCodeAndMath() {
+  if (typeof Prism !== 'undefined') Prism.highlightAll();
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '\\[', right: '\\]', display: true}
+      ],
+      throwOnError: false
+    });
+  }
+}
+
+// ---------- ARTIGOS RELACIONADOS ----------
 async function loadRelatedArticles(currentId, category) {
   if (!category) { relatedSection.style.display = 'none'; return; }
   try {
@@ -461,12 +540,8 @@ function renderRelated(articles) {
     const link = document.createElement('a');
     link.href = `index.html?id=${a.id}`;
     link.className = 'related-card';
-
     let coverRelated = '';
-    if (a.cover_image) {
-      coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
-    }
-
+    if (a.cover_image) coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
     link.innerHTML = `
       <div class="related-card-inner">
         ${coverRelated}
@@ -478,7 +553,7 @@ function renderRelated(articles) {
     `;
     relatedList.appendChild(link);
   });
-}
+} 
 
 function escapeHtml(text) {
   if (!text) return '';
@@ -489,12 +564,12 @@ function escapeHtml(text) {
 
 // ---------- INICIALIZAÇÃO ----------
 async function init() {
+  applyDarkMode(); // aplica modo escuro salvo antes de renderizar
   const id = getArticleId();
   if (!id) {
     articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../index.html">← Voltar</a></div>';
     return;
   }
-
   const article = await fetchArticle(id);
   if (article) {
     await renderArticle(article);

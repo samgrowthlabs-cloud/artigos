@@ -427,3 +427,19 @@ nav a.active {
   margin: 0.3rem 0;
   color: #444;
 }
+
+/* Badge de tendência (🔥 Em alta) */
+.trending-badge {
+  display: inline-block;
+  background: #fff0e0;
+  color: #c45100;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  margin-left: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid #ffd6a5;
+  vertical-align: middle;
+}

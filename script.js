@@ -1,4 +1,4 @@
-// script.js – Busca inteligente (autor, tags, título, conteúdo, relevância) com SVGs
+// script.js – Busca inteligente (autor, tags, título, conteúdo, relevância) + TRENDING
 const articlesList = document.getElementById('articles-list');
 const emptyState = document.getElementById('empty-state');
 const searchInput = document.getElementById('search-input');
@@ -70,12 +70,12 @@ const svgUser = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" str
 const svgEye = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const svgHeart = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
 
-// ----- CARREGA TODOS OS ARTIGOS (cache) -----
+// ----- CARREGA TODOS OS ARTIGOS (cache) – INCLUINDO is_trending -----
 async function loadAllArticles() {
   if (allArticles.length > 0) return allArticles;
   try {
-    // Busca artigos
-    const urlArticles = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,content,created_at,category,tags,cover_image,views,likes,author_id&order=created_at.desc`;
+    // 🔥 Adicionado 'is_trending' no SELECT
+    const urlArticles = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,content,created_at,category,tags,cover_image,views,likes,author_id,is_trending&order=created_at.desc`;
     const resArticles = await fetch(urlArticles, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
     });
@@ -117,7 +117,7 @@ function searchRelevantArticles(articles, query) {
     const titleNorm = normalize(article.title);
     const summaryNorm = normalize(article.summary || '');
     const contentNorm = normalize(article.content || '');
-    const authorNorm = normalize(article.author || '');
+    const authorNorm = normalize(article.author_name || '');
     let tagsNorm = '';
     if (article.tags) {
       if (Array.isArray(article.tags)) tagsNorm = normalize(article.tags.join(' '));
@@ -151,7 +151,7 @@ function searchRelevantArticles(articles, query) {
   return filtered.map(item => item.article);
 }
 
-// ----- FILTROS -----
+// ----- FILTROS DE CATEGORIA E PERÍODO -----
 function filterByCategoryAndPeriod(articles, category, period) {
   let result = [...articles];
   if (category) result = result.filter(a => a.category === category);
@@ -167,7 +167,7 @@ function filterByCategoryAndPeriod(articles, category, period) {
   return result;
 }
 
-// ----- RENDER (com SVGs) -----
+// ----- RENDER (com SVGs e BADGE DE TRENDING) -----
 function renderArticles(articles) {
   articlesList.innerHTML = '';
   if (!articles || articles.length === 0) {
@@ -199,6 +199,14 @@ function renderArticles(articles) {
       badge.textContent = 'Novo';
       h2.appendChild(badge);
     }
+    // 🔥 BADGE DE TRENDING
+    if (article.is_trending === true) {
+      const trendingBadge = document.createElement('span');
+      trendingBadge.className = 'trending-badge';
+      trendingBadge.textContent = '🔥 Em alta';
+      h2.appendChild(trendingBadge);
+    }
+
     left.appendChild(h2);
 
     // Resumo
@@ -210,7 +218,7 @@ function renderArticles(articles) {
       left.appendChild(summaryEl);
     }
 
-    // Autor com SVG (apenas se existir)
+    // Autor com SVG
     if (article.author_name) {
       const authorSpan = document.createElement('div');
       authorSpan.className = 'article-author';
@@ -218,7 +226,7 @@ function renderArticles(articles) {
       left.appendChild(authorSpan);
     }
 
-    // Métricas com SVGs (olho e coração)
+    // Métricas com SVGs
     const metrics = document.createElement('div');
     metrics.className = 'article-metrics';
     metrics.innerHTML = `
@@ -268,7 +276,7 @@ function truncateSummary(summary, max = 150) {
   return summary.length <= max ? summary : summary.substring(0, max).trimEnd() + '…';
 }
 
-// ----- APLICA FILTROS -----
+// ----- APLICA FILTROS (com TRENDING NO TOPO) -----
 async function applyFilters() {
   const searchText = searchInput.value.trim();
   const category = categoryFilter.value;
@@ -283,6 +291,11 @@ async function applyFilters() {
   } else {
     working = [...working].sort((a, b) => (b.views || 0) - (a.views || 0));
   }
+
+  // 🔥 SEPARA OS TRENDING E COLOCA NO TOPO
+  const trending = working.filter(a => a.is_trending === true);
+  const normal = working.filter(a => !a.is_trending);
+  working = [...trending, ...normal];
 
   working = filterByCategoryAndPeriod(working, category, period);
   renderArticles(working);
