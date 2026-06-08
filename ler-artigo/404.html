@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <title>Redirecionando...</title>
   <script>
-    const path = window.location.pathname;
-    const slug = path.split('/').pop();
-    if (slug && slug !== 'index.html' && !slug.includes('.')) {
-      window.location.replace(`./?slug=${encodeURIComponent(slug)}`);
-    } else {
-      window.location.replace('./');
-    }
+    (function() {
+      const path = window.location.pathname;
+      const slug = path.split('/').pop();
+      if (slug && slug !== 'index.html' && !slug.includes('.') && slug !== 'ler-artigo') {
+        window.location.replace(`./index.html?slug=${encodeURIComponent(slug)}`);
+      } else {
+        window.location.replace('./index.html');
+      }
+    })();
   </script>
 </head>
 <body>Redirecionando...</body>
