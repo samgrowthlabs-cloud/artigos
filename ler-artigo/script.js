@@ -362,7 +362,7 @@ function setupAudioButtons() {
 // ---------- RENDER PRINCIPAL (com trending, toolbar, etc.) ----------
 async function renderArticle(article) {
   if (!article) {
-    articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../index.html">← Voltar</a></div>`;
+    articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../">← Voltar</a></div>`;
     renderCodeAndMath();
     document.title = 'Artigo não encontrado – BIDARTIGOS';
     return;
@@ -392,7 +392,7 @@ async function renderArticle(article) {
     authorHTML = `
       <span class="meta-author">
         <img src="${avatarUrl}" class="author-avatar-small" onerror="this.src='https://ui-avatars.com/api/?background=ccc&name=${encodeURIComponent(authorData.name)}'">
-        <a href="../perfil_autor/index.html?id=${authorData.id}">${escapeHtml(authorData.name)}</a>
+        <a href="../perfil_autor/?id=${authorData.id}">${escapeHtml(authorData.name)}</a>
         ${verifiedBadge}
         ${badgeHtml}
       </span>
@@ -538,7 +538,7 @@ function renderRelated(articles) {
   relatedList.innerHTML = '';
   articles.forEach(a => {
     const link = document.createElement('a');
-    link.href = `index.html?id=${a.id}`;
+    link.href = `?id=${a.id}`;
     link.className = 'related-card';
     let coverRelated = '';
     if (a.cover_image) coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
@@ -567,7 +567,7 @@ async function init() {
   applyDarkMode(); // aplica modo escuro salvo antes de renderizar
   const id = getArticleId();
   if (!id) {
-    articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../index.html">← Voltar</a></div>';
+    articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../">← Voltar</a></div>';
     return;
   }
   const article = await fetchArticle(id);

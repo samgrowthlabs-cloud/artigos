@@ -86,7 +86,7 @@ function renderProfile(author, articles) {
     profileContent.innerHTML = `
       <div class="profile-card" style="text-align:center;">
         <p style="color:#c00;">Autor não encontrado.</p>
-        <a href="../index.html">← Voltar para o início</a>
+        <a href="../">← Voltar para o início</a>
       </div>
     `;
     document.title = 'Autor não encontrado – BIDARTIGOS';
@@ -164,7 +164,7 @@ function renderProfile(author, articles) {
         <h2>📝 Trabalhos publicados</h2>
         <div class="articles-grid">
           ${articles.map(art => `
-            <a href="../ler-artigo/index.html?id=${art.id}" class="article-card">
+            <a href="../ler-artigo/?id=${art.id}" class="article-card">
               ${art.cover_image ? `<img src="${art.cover_image}" class="article-cover" loading="lazy">` : '<div class="article-cover" style="background:#f5f5f5;"></div>'}
               <div class="article-info">
                 <div class="article-title">${escapeHtml(art.title)}</div>
@@ -203,7 +203,7 @@ function renderProfile(author, articles) {
 async function init() {
   const id = getAuthorId();
   if (!id) {
-    profileContent.innerHTML = `<div class="profile-card" style="text-align:center;"><p>ID do autor não informado.</p><a href="../index.html">← Voltar</a></div>`;
+    profileContent.innerHTML = `<div class="profile-card" style="text-align:center;"><p>ID do autor não informado.</p><a href="../">← Voltar</a></div>`;
     return;
   }
   const author = await fetchAuthor(id);

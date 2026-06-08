@@ -180,7 +180,7 @@ function renderArticles(articles) {
 
   articles.forEach(article => {
     const link = document.createElement('a');
-    link.href = `ler-artigo/index.html?id=${article.id}`;
+    link.href = `ler-artigo/?id=${article.id}`;
     link.className = 'article-card';
 
     let coverHtml = '';
