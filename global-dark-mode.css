@@ -356,6 +356,76 @@ body.dark-mode select:focus {
   outline: none;
 }
 
-body.dark-mode #dark-mode-toggle svg {
-  stroke: #ffffff !important;
+/* ===== MODO ESCURO – AJUSTES MOBILE ===== */
+@media (max-width: 600px) {
+  body.dark-mode .search-area select,
+  body.dark-mode .search-box input,
+  body.dark-mode .date-input,
+  body.dark-mode .filter-input {
+    background: #1e2a36 !important;
+    color: #e0e4e8 !important;
+    border-color: #3f5568 !important;
+  }
+  
+  body.dark-mode .article-card {
+    background: #12161c !important;
+    border-color: #2a2f36 !important;
+  }
+  
+  body.dark-mode .article-card h2,
+  body.dark-mode .article-card .article-date,
+  body.dark-mode .article-card .article-summary-preview {
+    color: #e2e8f0 !important;
+  }
+  
+  body.dark-mode .pagination .page-btn {
+    background: #1e2a36 !important;
+    border-color: #3f5568 !important;
+    color: #ccddee !important;
+  }
+  
+  body.dark-mode .share-buttons {
+    background: rgba(17, 22, 29, 0.95) !important;
+    backdrop-filter: blur(12px);
+  }
+  
+  body.dark-mode .share-buttons button,
+  body.dark-mode .share-buttons a {
+    background: transparent !important;
+    color: #ccddee !important;
+  }
+  
+  /* Ajuste para o índice (sumário) no mobile */
+  body.dark-mode .article-index {
+    background: #11161d !important;
+    border-bottom-color: #2c3540 !important;
+  }
+  
+  body.dark-mode .index-toggle {
+    color: #ccddee !important;
+  }
+  
+  body.dark-mode .index-content a {
+    color: #b8c7dd !important;
+  }
+}
+
+body.dark-mode .link-card {
+  background: #1e2a36;
+  border-color: #3f5568;
+}
+body.dark-mode .email-link {
+  color: #ffaa88;
+}
+body.dark-mode .button-form {
+  background: #1e2a36;
+  color: #e0e4e8;
+  border-color: #3f5568;
+}
+body.dark-mode .help-text {
+  color: #9aa2b0;
+}
+body.dark-mode .final-message {
+  border-top-color: #2a2f36;
+  color: #ccddee;
 }
