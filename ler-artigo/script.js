@@ -1,6 +1,7 @@
 // ==============================================
 // ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS,
-//                        ÁUDIO, TRENDING, MODO ESCURO, CITAÇÃO, IMPRESSÃO
+//                        ÁUDIO, TRENDING, CITAÇÃO, IMPRESSÃO
+//              (botão de modo escuro apenas no header)
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -16,23 +17,23 @@ const relatedSection = document.getElementById('related-articles');
 const relatedList = document.getElementById('related-list');
 const backToTop = document.getElementById('back-to-top');
 
-// ---------- MODO ESCURO ----------
+// ---------- MODO ESCURO (controlado pelo botão no header) ----------
 let darkMode = localStorage.getItem('bidartigos_dark_mode') === 'true';
+
 function applyDarkMode() {
   if (darkMode) document.body.classList.add('dark-mode');
   else document.body.classList.remove('dark-mode');
-  const darkBtn = document.getElementById('dark-mode-btn');
-  if (darkBtn) {
-    darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
-  }
 }
+
 function toggleDarkMode() {
   darkMode = !darkMode;
   localStorage.setItem('bidartigos_dark_mode', darkMode);
   applyDarkMode();
-  const darkBtn = document.getElementById('dark-mode-btn');
-  if (darkBtn) {
-    const svg = darkBtn.querySelector('svg');
+  
+  // Atualiza ícone do botão do header
+  const toggleBtn = document.getElementById('dark-mode-toggle');
+  if (toggleBtn) {
+    const svg = toggleBtn.querySelector('svg');
     if (svg) {
       if (darkMode) {
         // Ícone de sol (modo escuro ativo)
@@ -42,7 +43,6 @@ function toggleDarkMode() {
         svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
       }
     }
-    darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
   }
 }
 
@@ -359,7 +359,7 @@ function setupAudioButtons() {
   stopBtn.addEventListener('click', stopReading);
 }
 
-// ---------- RENDER PRINCIPAL (com trending, toolbar, etc.) ----------
+// ---------- RENDER PRINCIPAL (sem botão de modo escuro na toolbar) ----------
 async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../">← Voltar</a></div>`;
@@ -418,17 +418,12 @@ async function renderArticle(article) {
   // Badge de tendência
   const trendingBadge = article.is_trending ? '<span class="trending-badge-article">🔥 Em alta</span>' : '';
 
+  // Barra de ferramentas (apenas citação e impressão – sem modo escuro)
   articleContent.innerHTML = `
     ${coverHTML}
     <h1 class="article-title">${escapeHtml(article.title)} ${trendingBadge}</h1>
     
-    <!-- Barra de ferramentas (modo escuro, citação, impressão) -->
     <div class="article-toolbar">
-      <button id="dark-mode-btn" class="tool-btn" title="Alternar modo escuro">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-      </button>
       <button id="citation-btn" class="tool-btn" title="Copiar citação">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 4v16h16V4H4z M8 9h8M8 13h6"/>
@@ -480,7 +475,7 @@ async function renderArticle(article) {
     </div>
   `;
 
-  // 🔥 RENDERIZA CÓDIGO E FÓRMULAS MATEMÁTICAS
+  // Renderiza código e fórmulas
   renderCodeAndMath();
 
   buildIndexNav(indexItems);
@@ -488,8 +483,6 @@ async function renderArticle(article) {
   setupAudioButtons();
 
   // Eventos da barra de ferramentas
-  const darkBtn = document.getElementById('dark-mode-btn');
-  if (darkBtn) darkBtn.addEventListener('click', toggleDarkMode);
   const citationBtn = document.getElementById('citation-btn');
   if (citationBtn) citationBtn.addEventListener('click', () => copyCitation(article));
   const printBtn = document.getElementById('print-btn');
@@ -499,7 +492,7 @@ async function renderArticle(article) {
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
 }
 
-// 👇 INSIRA A FUNÇÃO AQUI
+// Renderização de código e matemática
 function renderCodeAndMath() {
   if (typeof Prism !== 'undefined') Prism.highlightAll();
   if (typeof renderMathInElement !== 'undefined') {
@@ -553,7 +546,7 @@ function renderRelated(articles) {
     `;
     relatedList.appendChild(link);
   });
-} 
+}
 
 function escapeHtml(text) {
   if (!text) return '';
@@ -564,7 +557,24 @@ function escapeHtml(text) {
 
 // ---------- INICIALIZAÇÃO ----------
 async function init() {
-  applyDarkMode(); // aplica modo escuro salvo antes de renderizar
+  // Aplica modo escuro salvo
+  applyDarkMode();
+  
+  // Configura botão de modo escuro no header (se existir)
+  const headerToggle = document.getElementById('dark-mode-toggle');
+  if (headerToggle) {
+    headerToggle.addEventListener('click', toggleDarkMode);
+    // Define o ícone inicial correto
+    const svg = headerToggle.querySelector('svg');
+    if (svg) {
+      if (darkMode) {
+        svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
+      } else {
+        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      }
+    }
+  }
+  
   const id = getArticleId();
   if (!id) {
     articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../">← Voltar</a></div>';

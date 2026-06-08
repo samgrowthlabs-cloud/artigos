@@ -230,3 +230,98 @@ li {
     font-size: 0.9rem;
   }
 }
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.dark-mode-toggle:hover {
+  background: rgba(0,0,0,0.05);
+}
+body.dark-mode .dark-mode-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ===== MODO ESCURO (sobrescreve ou complementa o global) ===== */
+body.dark-mode {
+  background: #0a0c10;
+  color: #eaeef2;
+}
+
+body.dark-mode .site-header,
+body.dark-mode .site-footer {
+  background: #111418;
+  border-color: #2a2f36;
+}
+
+body.dark-mode .logo,
+body.dark-mode .site-footer p {
+  color: #e0e4e8;
+}
+
+body.dark-mode .logo svg {
+  stroke: #e0e4e8;
+}
+
+body.dark-mode nav a {
+  color: #9ca3af;
+}
+
+body.dark-mode nav a:hover {
+  color: #fff;
+}
+
+body.dark-mode h1,
+body.dark-mode h2 {
+  color: #ffffff;
+}
+
+body.dark-mode h1 .title-icon,
+body.dark-mode h2 .section-icon {
+  stroke: #ccddee;
+}
+
+body.dark-mode p,
+body.dark-mode li {
+  color: #e2e8f0;
+}
+
+body.dark-mode .link-card {
+  background: #1e2a36;
+  border-color: #3f5568;
+}
+
+body.dark-mode .email-link {
+  color: #ffaa88;
+}
+
+body.dark-mode .button-form {
+  background: #1e2a36;
+  color: #e0e4e8;
+  border: 1px solid #3f5568;
+}
+
+body.dark-mode .button-form:hover {
+  background: #2c4050;
+  border-color: #85b0df;
+}
+
+body.dark-mode .help-text {
+  color: #9aa2b0;
+}
+
+body.dark-mode .final-message {
+  border-top-color: #2a2f36;
+  color: #ccddee;
+}
+
+body.dark-mode .final-message svg {
+  stroke: #ccddee;
+}

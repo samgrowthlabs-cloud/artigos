@@ -1,5 +1,5 @@
 // ==============================================
-// Home – Busca local (sem content), paginação, ordenação, trending
+// Home – Busca local, paginação, ordenação, trending, modo escuro (CORRIGIDO)
 // ==============================================
 const articlesList = document.getElementById('articles-list');
 const emptyState = document.getElementById('empty-state');
@@ -14,7 +14,37 @@ const sortBySelect = document.getElementById('sort-by');
 let currentPage = 1;
 const limit = 12;
 let totalPages = 1;
-let allArticlesLight = []; // armazena artigos leves (sem content)
+let allArticlesLight = [];
+
+// ----- MODO ESCURO (global) -----
+function applyDarkMode() {
+  const isDark = localStorage.getItem('bidartigos_dark_mode') === 'true';
+  if (isDark) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  updateDarkModeButtonIcon(isDark);
+}
+
+function updateDarkModeButtonIcon(isDark) {
+  const toggleBtn = document.getElementById('dark-mode-toggle');
+  if (!toggleBtn) return;
+  const svg = toggleBtn.querySelector('svg');
+  if (!svg) return;
+  if (isDark) {
+    // Ícone de sol
+    svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
+  } else {
+    // Ícone de lua
+    svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+}
+
+function toggleDarkMode() {
+  const isDark = !document.body.classList.contains('dark-mode');
+  if (isDark) document.body.classList.add('dark-mode');
+  else document.body.classList.remove('dark-mode');
+  localStorage.setItem('bidartigos_dark_mode', isDark);
+  updateDarkModeButtonIcon(isDark);
+}
 
 // ----- CATEGORIAS -----
 function loadCategories() {
@@ -74,7 +104,7 @@ function getPeriodFilter() {
   return { from, to: null };
 }
 
-// ----- NORMALIZAÇÃO (para busca local) -----
+// ----- NORMALIZAÇÃO -----
 function normalize(str) {
   if (!str) return '';
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -222,7 +252,7 @@ function renderPagination(current, total) {
   articlesList.parentNode.insertBefore(div, articlesList.nextSibling);
 }
 
-// ----- CARREGAR ARTIGOS LEVES (sem content) -----
+// ----- CARREGAR ARTIGOS LEVES -----
 async function loadAllArticlesLight() {
   const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,category,tags,cover_image,views,likes,created_at,author_id,is_trending&order=created_at.desc`;
   const res = await fetch(url, {
@@ -274,7 +304,7 @@ function searchRelevantArticles(articles, query) {
       if (tagsNorm.includes(w)) score += 6;
       if (summaryNorm.includes(w)) score += 4;
     }
-    // Penalidade para popularidade (opcional)
+    // Penalidade para popularidade
     const viewPenalty = Math.min(20, (article.views || 0) / 50);
     const likePenalty = Math.min(15, (article.likes || 0) / 30);
     score = score - viewPenalty - likePenalty;
@@ -318,8 +348,15 @@ async function applyFiltersAndRender() {
   if (sortBy === 'recent') working.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   else if (sortBy === 'views') working.sort((a,b) => (b.views||0) - (a.views||0));
   else if (sortBy === 'likes') working.sort((a,b) => (b.likes||0) - (a.likes||0));
-  else if (sortBy === 'relevance' && !searchText) working.sort((a,b) => (b.is_trending===true?1:0) - (a.is_trending===true?1:0) || new Date(b.created_at) - new Date(a.created_at));
-  // se for relevance com busca, já está ordenado pela relevância
+  else if (sortBy === 'relevance') {
+    if (searchText) {
+      // Já ordenado pela pontuação da busca
+      // (searchRelevantArticles já ordena)
+    } else {
+      // Sem busca, ordena por trending (is_trending primeiro, depois data)
+      working.sort((a,b) => (b.is_trending===true?1:0) - (a.is_trending===true?1:0) || new Date(b.created_at) - new Date(a.created_at));
+    }
+  }
 
   totalPages = Math.ceil(working.length / limit);
   const start = (currentPage - 1) * limit;
@@ -336,11 +373,56 @@ dateFrom.addEventListener('change', () => { currentPage = 1; applyFiltersAndRend
 dateTo.addEventListener('change', () => { currentPage = 1; applyFiltersAndRender(); });
 if (sortBySelect) sortBySelect.addEventListener('change', () => { currentPage = 1; applyFiltersAndRender(); });
 
+
+// Forçar a leitura do modo escuro ao carregar a página
+(function() {
+  const darkMode = localStorage.getItem('bidartigos_dark_mode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+    const toggleBtn = document.getElementById('dark-mode-toggle');
+    if (toggleBtn) {
+      const svg = toggleBtn.querySelector('svg');
+      if (svg) svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
+    }
+  }
+})();
+
+// Evento do botão (garantido)
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleBtn = document.getElementById('dark-mode-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('bidartigos_dark_mode', isDark);
+      const svg = this.querySelector('svg');
+      if (svg) {
+        if (isDark) {
+          svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
+        } else {
+          svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+        }
+      }
+    });
+  }
+});
+
 // ----- INICIALIZAÇÃO -----
 async function init() {
   loadCategories();
   loadSortOptions();
   await loadAllArticlesLight();
   applyFiltersAndRender();
+
+  // Aplica modo escuro salvo
+  applyDarkMode();
+
+  // Atrela evento do botão (garantindo que o elemento existe)
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', toggleDarkMode);
+  } else {
+    console.warn('Botão dark-mode-toggle não encontrado');
+  }
 }
+
 init();

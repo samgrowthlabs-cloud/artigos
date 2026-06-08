@@ -488,3 +488,21 @@ body.dark-mode mark {
   background: #5a4a1a;
   color: #ffd966;
 }
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.dark-mode-toggle:hover {
+  background: rgba(0,0,0,0.05);
+}
+body.dark-mode .dark-mode-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}

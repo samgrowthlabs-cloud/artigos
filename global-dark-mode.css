@@ -1,0 +1,361 @@
+/* ==============================================
+   MODO ESCURO GLOBAL – BIDARTIGOS
+   (home, artigo, perfil, sobre, admin)
+   ============================================== */
+
+/* Transição global */
+body {
+  transition: background-color 0.3s ease, color 0.2s ease;
+}
+
+body.dark-mode {
+  background: #0a0c10;
+  color: #eaeef2;
+}
+
+/* ---------- HEADER & FOOTER ---------- */
+body.dark-mode .site-header,
+body.dark-mode .site-footer {
+  background: #111418;
+  border-color: #2a2f36;
+}
+
+body.dark-mode .logo,
+body.dark-mode .site-footer p {
+  color: #e0e4e8;
+}
+
+body.dark-mode nav a {
+  color: #9ca3af;
+}
+
+body.dark-mode nav a:hover {
+  color: #ffffff;
+  text-decoration-color: #5f7f9e;
+}
+
+/* Botão de alternância de modo escuro no header */
+body.dark-mode .dark-mode-toggle {
+  background: #1e2a36;
+  border-color: #3f5568;
+}
+
+body.dark-mode .dark-mode-toggle svg {
+  stroke: #ccddee;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  background: #2c4050;
+  border-color: #85b0df;
+}
+
+/* ---------- CONTAINER PRINCIPAL ---------- */
+body.dark-mode .container,
+body.dark-mode .article-container,
+body.dark-mode .profile-container {
+  background: transparent;
+}
+
+/* ---------- TÍTULOS ---------- */
+body.dark-mode .page-title,
+body.dark-mode .article-title,
+body.dark-mode .profile-name {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* ---------- ÁREA DE BUSCA E FILTROS (home) ---------- */
+body.dark-mode .search-box input,
+body.dark-mode select,
+body.dark-mode .filter-input,
+body.dark-mode .date-input {
+  background: #1e2a36;
+  border-color: #3f5568;
+  color: #e0e4e8;
+}
+
+body.dark-mode .search-box input:focus,
+body.dark-mode select:focus,
+body.dark-mode .filter-input:focus,
+body.dark-mode .date-input:focus {
+  border-color: #85b0df;
+  outline: none;
+}
+
+body.dark-mode .search-icon {
+  stroke: #ccddee;
+}
+
+body.dark-mode select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ccddee' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+body.dark-mode #custom-period span {
+  color: #9aa2b0;
+}
+
+/* ---------- CARDS DE ARTIGOS (home) ---------- */
+body.dark-mode .article-card {
+  background: #12161c;
+  border-color: #2a2f36;
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .article-card:hover {
+  border-color: #4a627a;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+
+body.dark-mode .article-card h2 {
+  color: #e2e8f0;
+}
+
+body.dark-mode .article-summary-preview,
+body.dark-mode .article-date {
+  color: #95a5b8;
+}
+
+/* ---------- METADADOS DO AUTOR (home) ---------- */
+body.dark-mode .article-author {
+  color: #9aa2b0;
+}
+
+body.dark-mode .article-metrics {
+  color: #9aa2b0;
+}
+
+body.dark-mode .article-metrics svg {
+  stroke: #ccddee;
+}
+
+/* ---------- TAGS (home) ---------- */
+body.dark-mode .tag-badge {
+  background: #1e2a36;
+  color: #bfd9f0;
+  border-color: #2c3e4e;
+}
+
+/* ---------- PAGINAÇÃO ---------- */
+body.dark-mode .pagination {
+  border-top-color: #2a2f36;
+}
+
+body.dark-mode .page-btn {
+  background: #1e2a36;
+  border-color: #3f5568;
+  color: #ccddee;
+}
+
+body.dark-mode .page-btn.active {
+  background: #85b0df;
+  color: #0a0c10;
+  border-color: #85b0df;
+}
+
+body.dark-mode .page-btn:hover {
+  background: #2c4050;
+  border-color: #85b0df;
+}
+
+/* ---------- BADGES (novo, trending, etc.) ---------- */
+body.dark-mode .new-badge {
+  background: #2a3a4e;
+  color: #cbd5e1;
+}
+
+body.dark-mode .trending-badge,
+body.dark-mode .trending-badge-article {
+  background: #3a2a1e;
+  color: #ffbd7f;
+  border-color: #b45f1b;
+  box-shadow: 0 0 4px #ffaa66;
+}
+
+/* ---------- PERFIL DO AUTOR (se aplicável) ---------- */
+body.dark-mode .profile-card {
+  background: #12161c;
+  border-color: #2a2f36;
+}
+
+body.dark-mode .avatar {
+  box-shadow: 0 0 0 2px #1e2a3a;
+}
+
+body.dark-mode .profile-bio {
+  color: #e2e8f0;
+}
+
+body.dark-mode .profile-meta a {
+  color: #9aa2b0;
+}
+
+body.dark-mode .profile-meta a:hover {
+  color: #ffffff;
+}
+
+body.dark-mode .articles-grid .article-cover {
+  background: #1e2a36;
+}
+
+body.dark-mode .no-articles {
+  color: #9aa2b0;
+}
+
+/* ---------- VERIFICADO ---------- */
+body.dark-mode .verified-badge-small {
+  background: linear-gradient(135deg, #2c3e50, #1e2f3e);
+  color: #9ac4de;
+  box-shadow: 0 0 2px #6c9ecf;
+}
+
+/* ---------- BADGES DE PRODUTIVIDADE ---------- */
+body.dark-mode .productivity-badge.productive {
+  background: linear-gradient(135deg, #3a2e22, #2a2018);
+  color: #ffbc6e;
+  border-color: #b45f2b;
+}
+
+body.dark-mode .productivity-badge.ultra-productive {
+  background: linear-gradient(135deg, #4a3520, #3e2a18);
+  color: #ffbc6e;
+  border-color: #d97a2b;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.3);
+}
+
+/* ---------- MARCAÇÃO DE TEXTO (mark) ---------- */
+body.dark-mode mark {
+  background: #4a3a1a;
+  color: #ffdd99;
+  border-radius: 4px;
+  padding: 0 0.1rem;
+}
+
+/* ---------- IMPRESSÃO (não afeta o modo escuro) ---------- */
+@media print {
+  body.dark-mode {
+    background: white;
+    color: black;
+  }
+  body.dark-mode * {
+    color: black !important;
+    background: white !important;
+    border-color: #ccc !important;
+  }
+}
+
+/* ==============================================
+   ESTILOS EXTRAS PARA CONTROLES DA HOME
+   ============================================== */
+
+/* Área de período customizado */
+body.dark-mode #custom-period {
+  background: transparent;
+}
+
+body.dark-mode .date-input {
+  background: #1e2a36;
+  border-color: #3f5568;
+  color: #e0e4e8;
+}
+
+body.dark-mode .date-input:focus {
+  border-color: #85b0df;
+}
+
+/* Botões de ordenação e selects (já incluso, mas reforçando) */
+body.dark-mode select {
+  background-color: #1e2a36;
+  color: #e0e4e8;
+  border-color: #3f5568;
+}
+
+body.dark-mode select option {
+  background-color: #1e2a36;
+  color: #e0e4e8;
+}
+
+/* Paginação (já incluso, mas garantir) */
+body.dark-mode .page-btn {
+  background: #1e2a36;
+  border-color: #3f5568;
+  color: #ccddee;
+}
+
+body.dark-mode .page-btn.active {
+  background: #85b0df;
+  color: #0a0c10;
+}
+
+body.dark-mode .page-btn:hover {
+  background: #2c4050;
+}
+
+/* Botão de alternância do modo escuro (quando estiver no header) */
+.dark-mode-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  transition: all 0.2s;
+}
+
+.dark-mode-toggle svg {
+  stroke: #333;
+  stroke-width: 1.8;
+  width: 20px;
+  height: 20px;
+  transition: stroke 0.2s;
+}
+
+body.dark-mode .dark-mode-toggle svg {
+  stroke: #ccddee;
+}
+
+.dark-mode-toggle:hover {
+  background: #f0f0f0;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  background: #2c4050;
+}
+
+/* ===== ESTILO PARA SELECTS (list boxes) NO MODO ESCURO ===== */
+
+body.dark-mode select,
+body.dark-mode .search-area select,
+body.dark-mode #category-filter,
+body.dark-mode #period-filter,
+body.dark-mode #sort-by {
+  background-color: #1e2a36 !important;
+  color: #e0e4e8 !important;
+  border-color: #3f5568 !important;
+  /* Remove a seta padrão do navegador */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Adiciona a seta personalizada (apenas uma) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ccddee' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 12px;
+  padding-right: 2rem !important; /* espaço para a seta */
+}
+
+body.dark-mode select option {
+  background-color: #1e2a36 !important;
+  color: #e0e4e8 !important;
+}
+
+body.dark-mode select:focus {
+  border-color: #85b0df !important;
+  outline: none;
+}
+
+body.dark-mode #dark-mode-toggle svg {
+  stroke: #ffffff !important;
+}
