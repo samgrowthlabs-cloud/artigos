@@ -24,7 +24,7 @@ async function fetchAuthor(id) {
 }
 
 async function fetchAuthorArticles(authorId) {
-  const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image,slug&author_id=eq.${authorId}&order=created_at.desc`;
+  const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image&author_id=eq.${authorId}&order=created_at.desc`;
   try {
     const res = await fetch(url, {
       headers: {
@@ -156,7 +156,7 @@ function renderProfile(author, articles) {
     </a>`;
   }
 
-  // Grid de artigos com capa e com slug (URL amigável)
+  // Grid de artigos com capa
   let articlesHtml = '';
   if (articles && articles.length) {
     articlesHtml = `
@@ -164,7 +164,7 @@ function renderProfile(author, articles) {
         <h2>📝 Trabalhos publicados</h2>
         <div class="articles-grid">
           ${articles.map(art => `
-            <a href="../ler-artigo/${art.slug || `?id=${art.id}`}" class="article-card">
+            <a href="../ler-artigo/?id=${art.id}" class="article-card">
               ${art.cover_image ? `<img src="${art.cover_image}" class="article-cover" loading="lazy">` : '<div class="article-cover" style="background:#f5f5f5;"></div>'}
               <div class="article-info">
                 <div class="article-title">${escapeHtml(art.title)}</div>

@@ -127,11 +127,7 @@ function renderArticles(articles, searchTerm) {
 
   articles.forEach(article => {
     const link = document.createElement('a');
-    if (article.slug) {
-      link.href = `ler-artigo/${article.slug}`;
-    } else {
-      link.href = `ler-artigo/index.html?id=${article.id}`;
-    }
+    link.href = `ler-artigo/index.html?id=${article.id}`;
     link.className = 'article-card';
 
     let coverHtml = '';
@@ -228,7 +224,7 @@ function renderPagination(current, total) {
 
 // ----- CARREGAR ARTIGOS LEVES (sem content) -----
 async function loadAllArticlesLight() {
-  const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,category,tags,cover_image,views,likes,created_at,author_id,is_trending,slug&order=created_at.desc`;
+  const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,summary,category,tags,cover_image,views,likes,created_at,author_id,is_trending&order=created_at.desc`;
   const res = await fetch(url, {
     headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
   });
