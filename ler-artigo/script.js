@@ -1,6 +1,7 @@
 // ==============================================
 // ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS,
 //                        ÁUDIO, TRENDING, MODO ESCURO, CITAÇÃO, IMPRESSÃO
+//                        e URLs amigáveis (slug)
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -22,9 +23,7 @@ function applyDarkMode() {
   if (darkMode) document.body.classList.add('dark-mode');
   else document.body.classList.remove('dark-mode');
   const darkBtn = document.getElementById('dark-mode-btn');
-  if (darkBtn) {
-    darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
-  }
+  if (darkBtn) darkBtn.setAttribute('title', darkMode ? 'Modo claro' : 'Modo escuro');
 }
 function toggleDarkMode() {
   darkMode = !darkMode;
@@ -35,10 +34,8 @@ function toggleDarkMode() {
     const svg = darkBtn.querySelector('svg');
     if (svg) {
       if (darkMode) {
-        // Ícone de sol (modo escuro ativo)
         svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
       } else {
-        // Ícone de lua (modo claro)
         svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
       }
     }
@@ -63,12 +60,36 @@ function printArticle() {
   window.print();
 }
 
-function getArticleId() {
-  return new URLSearchParams(window.location.search).get('id');
+// ---------- IDENTIFICADOR (slug ou id) ----------
+function getArticleIdentifier() {
+  // 1. Verificar parâmetros na URL (?id=... ou ?slug=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const idParam = urlParams.get('id');
+  const slugParam = urlParams.get('slug');
+  if (idParam) return { id: idParam };
+  if (slugParam) return { slug: slugParam };
+  
+  // 2. Se não houver parâmetros, tentar extrair slug do pathname (URL limpa)
+  //    Ex: /ler-artigo/como-instalar-windows-11
+  const pathParts = window.location.pathname.split('/');
+  const lastPart = pathParts.pop();
+  if (lastPart && lastPart !== 'index.html' && !lastPart.includes('.')) {
+    return { slug: lastPart };
+  }
+  return null;
 }
 
-async function fetchArticle(id) {
-  const url = `${SUPABASE_URL}/rest/v1/articles?id=eq.${id}&select=*`;
+// ---------- BUSCAR ARTIGO POR ID OU SLUG ----------
+async function fetchArticle(identifier) {
+  if (!identifier) return null;
+  let url;
+  if (identifier.id) {
+    url = `${SUPABASE_URL}/rest/v1/articles?id=eq.${identifier.id}&select=*`;
+  } else if (identifier.slug) {
+    url = `${SUPABASE_URL}/rest/v1/articles?slug=eq.${identifier.slug}&select=*`;
+  } else {
+    return null;
+  }
   try {
     const res = await fetch(url, {
       headers: {
@@ -85,6 +106,7 @@ async function fetchArticle(id) {
   }
 }
 
+// ---------- AUTOR ----------
 async function fetchAuthor(authorId) {
   if (!authorId) return null;
   const url = `${SUPABASE_URL}/rest/v1/authors?id=eq.${authorId}&select=*`;
@@ -104,21 +126,27 @@ async function fetchAuthor(authorId) {
   }
 }
 
+// ---------- UTILITÁRIOS ----------
 function calculateReadingTime(text) {
   const words = text.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
 }
-
 function countWords(text) {
   return text.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length;
 }
-
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('pt-BR', {
     day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
   });
 }
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
+// ---------- VIEWS E LIKES ----------
 async function trackView(articleId) {
   const key = `bidartigos_viewed_${articleId}`;
   if (localStorage.getItem(key)) return;
@@ -135,7 +163,6 @@ async function trackView(articleId) {
     localStorage.setItem(key, 'true');
   } catch (e) { console.warn('Erro view:', e); }
 }
-
 async function handleLike(articleId, button) {
   const key = `bidartigos_liked_${articleId}`;
   if (localStorage.getItem(key)) return;
@@ -155,6 +182,7 @@ async function handleLike(articleId, button) {
   } catch (e) { console.warn('Erro like:', e); }
 }
 
+// ---------- FONTES ----------
 function buildSourcesHTML(sourceField) {
   if (!sourceField) return '<div class="article-source"><span class="source-label">Fontes</span><p>não informadas</p></div>';
   try {
@@ -170,6 +198,7 @@ function buildSourcesHTML(sourceField) {
   return `<div class="article-source"><span class="source-label">Fonte</span><p>${escapeHtml(sourceField)}</p></div>`;
 }
 
+// ---------- ÍNDICE ----------
 function generateIndex(content) {
   const container = document.createElement('div');
   container.innerHTML = content;
@@ -182,7 +211,6 @@ function generateIndex(content) {
   });
   return { updatedContent: container.innerHTML, indexItems: items };
 }
-
 function buildIndexNav(items) {
   indexNav.innerHTML = '';
   if (!items.length) {
@@ -203,13 +231,13 @@ function buildIndexNav(items) {
     indexNav.appendChild(a);
   });
 }
-
 if (indexToggle) {
   indexToggle.addEventListener('click', () => {
     articleIndex.classList.toggle('open');
   });
 }
 
+// ---------- BARRA DE PROGRESSO ----------
 function setupProgressBar() {
   window.addEventListener('scroll', () => {
     const article = document.querySelector('.article-container');
@@ -224,6 +252,7 @@ function setupProgressBar() {
   });
 }
 
+// ---------- VOLTAR AO TOPO ----------
 function setupBackToTopBtn() {
   window.addEventListener('scroll', () => {
     backToTop.classList.toggle('visible', window.scrollY > 400);
@@ -231,6 +260,7 @@ function setupBackToTopBtn() {
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
+// ---------- COMPARTILHAMENTO ----------
 function setupShareButtons(title) {
   const url = window.location.href;
   const encodedTitle = encodeURIComponent(title || "BIDARTIGOS");
@@ -253,7 +283,7 @@ function setupShareButtons(title) {
   }
 }
 
-// ----- CONTAGEM DE POSTS NO MÊS (para badge do autor) -----
+// ----- CONTAGEM DE POSTS NO MÊS (badge do autor) -----
 async function fetchAuthorMonthlyCount(authorId) {
   const now = new Date();
   const year = now.getFullYear();
@@ -273,24 +303,21 @@ async function fetchAuthorMonthlyCount(authorId) {
     return 0;
   }
 }
-
 function getProductivityBadge(count) {
   if (count >= 10) return { class: 'ultra-productive', text: '⚡ Ultra Produtivo', icon: '⚡' };
   if (count >= 5) return { class: 'productive', text: '🔥 Produtivo', icon: '🔥' };
   return null;
 }
 
-// ---------- LEITURA EM VOZ ALTA (Web Speech API) ----------
+// ---------- LEITURA EM VOZ ALTA ----------
 let speechSynthesis = window.speechSynthesis;
 let currentUtterance = null;
 let currentArticleText = '';
-
 function getPlainTextFromArticle() {
   const articleBody = document.querySelector('.article-body');
   if (!articleBody) return '';
   return articleBody.innerText || articleBody.textContent || '';
 }
-
 function startReading(text) {
   if (!text) return;
   stopReading();
@@ -313,7 +340,6 @@ function startReading(text) {
   if (playBtn) playBtn.style.display = 'none';
   if (pauseBtn) pauseBtn.style.display = 'inline-flex';
 }
-
 function pauseReading() {
   if (speechSynthesis.speaking && !speechSynthesis.paused) {
     speechSynthesis.pause();
@@ -323,7 +349,6 @@ function pauseReading() {
     if (pauseBtn) pauseBtn.style.display = 'none';
   }
 }
-
 function resumeReading() {
   if (speechSynthesis.paused) {
     speechSynthesis.resume();
@@ -333,7 +358,6 @@ function resumeReading() {
     if (pauseBtn) pauseBtn.style.display = 'inline-flex';
   }
 }
-
 function stopReading() {
   if (speechSynthesis.speaking || speechSynthesis.paused) {
     speechSynthesis.cancel();
@@ -344,7 +368,6 @@ function stopReading() {
   if (playBtn) playBtn.style.display = 'inline-flex';
   if (pauseBtn) pauseBtn.style.display = 'none';
 }
-
 function setupAudioButtons() {
   const playBtn = document.getElementById('audio-play');
   const pauseBtn = document.getElementById('audio-pause');
@@ -359,7 +382,7 @@ function setupAudioButtons() {
   stopBtn.addEventListener('click', stopReading);
 }
 
-// ---------- RENDER PRINCIPAL (com trending, toolbar, etc.) ----------
+// ---------- RENDER PRINCIPAL ----------
 async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../">← Voltar</a></div>`;
@@ -415,14 +438,12 @@ async function renderArticle(article) {
   const sourcesHTML = buildSourcesHTML(article.source);
   const coverHTML = article.cover_image ? `<img src="${article.cover_image}" class="article-cover-full" loading="lazy" alt="Capa do artigo">` : '';
 
-  // Badge de tendência
   const trendingBadge = article.is_trending ? '<span class="trending-badge-article">🔥 Em alta</span>' : '';
 
   articleContent.innerHTML = `
     ${coverHTML}
     <h1 class="article-title">${escapeHtml(article.title)} ${trendingBadge}</h1>
     
-    <!-- Barra de ferramentas (modo escuro, citação, impressão) -->
     <div class="article-toolbar">
       <button id="dark-mode-btn" class="tool-btn" title="Alternar modo escuro">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -442,7 +463,6 @@ async function renderArticle(article) {
       </button>
     </div>
 
-    <!-- Botões de áudio -->
     <div class="audio-controls-top">
       <button id="audio-play" title="Ouvir artigo" class="audio-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -480,14 +500,11 @@ async function renderArticle(article) {
     </div>
   `;
 
-  // 🔥 RENDERIZA CÓDIGO E FÓRMULAS MATEMÁTICAS
   renderCodeAndMath();
-
   buildIndexNav(indexItems);
   setupProgressBar();
   setupAudioButtons();
 
-  // Eventos da barra de ferramentas
   const darkBtn = document.getElementById('dark-mode-btn');
   if (darkBtn) darkBtn.addEventListener('click', toggleDarkMode);
   const citationBtn = document.getElementById('citation-btn');
@@ -499,7 +516,7 @@ async function renderArticle(article) {
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
 }
 
-// 👇 INSIRA A FUNÇÃO AQUI
+// ---------- RENDERIZAÇÃO DE CÓDIGO E MATEMÁTICA ----------
 function renderCodeAndMath() {
   if (typeof Prism !== 'undefined') Prism.highlightAll();
   if (typeof renderMathInElement !== 'undefined') {
@@ -515,11 +532,11 @@ function renderCodeAndMath() {
   }
 }
 
-// ---------- ARTIGOS RELACIONADOS ----------
+// ---------- ARTIGOS RELACIONADOS (com slug) ----------
 async function loadRelatedArticles(currentId, category) {
   if (!category) { relatedSection.style.display = 'none'; return; }
   try {
-    const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image&category=eq.${encodeURIComponent(category)}&id=neq.${currentId}&limit=3&order=created_at.desc`;
+    const url = `${SUPABASE_URL}/rest/v1/articles?select=id,title,created_at,cover_image,slug&category=eq.${encodeURIComponent(category)}&id=neq.${currentId}&limit=3&order=created_at.desc`;
     const res = await fetch(url, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
@@ -538,7 +555,12 @@ function renderRelated(articles) {
   relatedList.innerHTML = '';
   articles.forEach(a => {
     const link = document.createElement('a');
-    link.href = `?id=${a.id}`;
+    // Prioriza slug se existir, senão usa id
+    if (a.slug) {
+      link.href = `../ler-artigo/${a.slug}`;
+    } else {
+      link.href = `?id=${a.id}`;
+    }
     link.className = 'related-card';
     let coverRelated = '';
     if (a.cover_image) coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
@@ -553,31 +575,24 @@ function renderRelated(articles) {
     `;
     relatedList.appendChild(link);
   });
-} 
-
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // ---------- INICIALIZAÇÃO ----------
 async function init() {
   applyDarkMode(); // aplica modo escuro salvo antes de renderizar
-  const id = getArticleId();
-  if (!id) {
+  const identifier = getArticleIdentifier();
+  if (!identifier) {
     articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../">← Voltar</a></div>';
     return;
   }
-  const article = await fetchArticle(id);
+  const article = await fetchArticle(identifier);
   if (article) {
     await renderArticle(article);
     setupShareButtons(article.title);
     setupBackToTopBtn();
-    await trackView(id);
-    loadRelatedArticles(id, article.category);
-    const updated = await fetchArticle(id);
+    await trackView(article.id);
+    loadRelatedArticles(article.id, article.category);
+    const updated = await fetchArticle({ id: article.id });
     if (updated) {
       const spans = document.querySelectorAll('.article-meta span');
       spans.forEach(s => {

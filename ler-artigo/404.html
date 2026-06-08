@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecionando...</title>
+  <script>
+    const path = window.location.pathname;
+    const slug = path.split('/').pop();
+    if (slug && slug !== 'index.html' && !slug.includes('.')) {
+      window.location.replace(`./?slug=${encodeURIComponent(slug)}`);
+    } else {
+      window.location.replace('./');
+    }
+  </script>
+</head>
+<body>Redirecionando...</body>
+</html>

@@ -443,3 +443,48 @@ nav a.active {
   border: 1px solid #ffd6a5;
   vertical-align: middle;
 }
+/* Paginação */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+}
+.page-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.page-btn.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.page-btn:hover {
+  background: #f0f0f0;
+}
+/* Seletor de ordenação */
+.sort-select {
+  padding: 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+/* Destaque dos termos buscados */
+mark {
+  background: #fff3b0;
+  color: #111;
+  padding: 0 0.2rem;
+  border-radius: 3px;
+  display: inline-block; /* evita quebras de linha indesejadas */
+}
+body.dark-mode mark {
+  background: #5a4a1a;
+  color: #ffd966;
+}
