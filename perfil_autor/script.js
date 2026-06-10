@@ -165,7 +165,10 @@ function renderProfile(author, articles) {
         <div class="articles-grid">
           ${articles.map(art => `
             <a href="../ler-artigo/?id=${art.id}" class="article-card">
-              ${art.cover_image ? `<img src="${art.cover_image}" class="article-cover" loading="lazy">` : '<div class="article-cover" style="background:#f5f5f5;"></div>'}
+              ${art.cover_image
+  ? `<img src="${normalizeImageUrl(art.cover_image)}" class="article-cover" loading="lazy">`
+  : '<div class="article-cover" style="background:#f5f5f5;"></div>'
+}
               <div class="article-info">
                 <div class="article-title">${escapeHtml(art.title)}</div>
                 <div class="article-date">${formatDate(art.created_at)}</div>
@@ -198,6 +201,17 @@ function renderProfile(author, articles) {
       ${articlesHtml}
     </div>
   `;
+}
+
+
+function normalizeImageUrl(url) {
+  if (!url) return '';
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  return `https://${url}`;
 }
 
 async function init() {

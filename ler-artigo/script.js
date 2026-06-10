@@ -1,7 +1,6 @@
 // ==============================================
-// ler-artigo/script.js – Completo com CAPA, AUTOR, ÍNDICE, RELACIONADOS,
-//                        ÁUDIO, TRENDING, CITAÇÃO, IMPRESSÃO
-//              (botão de modo escuro apenas no header)
+// ler-artigo/script.js – Completo (sem modo escuro)
+// Apenas tema claro
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -16,35 +15,6 @@ const indexToggle = document.getElementById('index-toggle');
 const relatedSection = document.getElementById('related-articles');
 const relatedList = document.getElementById('related-list');
 const backToTop = document.getElementById('back-to-top');
-
-// ---------- MODO ESCURO (controlado pelo botão no header) ----------
-let darkMode = localStorage.getItem('bidartigos_dark_mode') === 'true';
-
-function applyDarkMode() {
-  if (darkMode) document.body.classList.add('dark-mode');
-  else document.body.classList.remove('dark-mode');
-}
-
-function toggleDarkMode() {
-  darkMode = !darkMode;
-  localStorage.setItem('bidartigos_dark_mode', darkMode);
-  applyDarkMode();
-  
-  // Atualiza ícone do botão do header
-  const toggleBtn = document.getElementById('dark-mode-toggle');
-  if (toggleBtn) {
-    const svg = toggleBtn.querySelector('svg');
-    if (svg) {
-      if (darkMode) {
-        // Ícone de sol (modo escuro ativo)
-        svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
-      } else {
-        // Ícone de lua (modo claro)
-        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-      }
-    }
-  }
-}
 
 // ---------- CITAÇÃO E IMPRESSÃO ----------
 function generateCitation(article) {
@@ -359,7 +329,7 @@ function setupAudioButtons() {
   stopBtn.addEventListener('click', stopReading);
 }
 
-// ---------- RENDER PRINCIPAL (sem botão de modo escuro na toolbar) ----------
+// ---------- RENDER PRINCIPAL ----------
 async function renderArticle(article) {
   if (!article) {
     articleContent.innerHTML = `<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;color:#c00;"><p>Artigo não encontrado.</p><a href="../">← Voltar</a></div>`;
@@ -413,12 +383,15 @@ async function renderArticle(article) {
 
   const { updatedContent, indexItems } = generateIndex(article.content);
   const sourcesHTML = buildSourcesHTML(article.source);
-  const coverHTML = article.cover_image ? `<img src="${article.cover_image}" class="article-cover-full" loading="lazy" alt="Capa do artigo">` : '';
+  const coverHTML = article.cover_image 
+  ? `<img src="${normalizeImageUrl(article.cover_image)}"
+         class="article-cover-full"
+         loading="lazy"
+         alt="Capa do artigo">`
+  : '';
 
-  // Badge de tendência
   const trendingBadge = article.is_trending ? '<span class="trending-badge-article">🔥 Em alta</span>' : '';
 
-  // Barra de ferramentas (apenas citação e impressão – sem modo escuro)
   articleContent.innerHTML = `
     ${coverHTML}
     <h1 class="article-title">${escapeHtml(article.title)} ${trendingBadge}</h1>
@@ -437,7 +410,6 @@ async function renderArticle(article) {
       </button>
     </div>
 
-    <!-- Botões de áudio -->
     <div class="audio-controls-top">
       <button id="audio-play" title="Ouvir artigo" class="audio-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -475,14 +447,12 @@ async function renderArticle(article) {
     </div>
   `;
 
-  // Renderiza código e fórmulas
   renderCodeAndMath();
 
   buildIndexNav(indexItems);
   setupProgressBar();
   setupAudioButtons();
 
-  // Eventos da barra de ferramentas
   const citationBtn = document.getElementById('citation-btn');
   if (citationBtn) citationBtn.addEventListener('click', () => copyCitation(article));
   const printBtn = document.getElementById('print-btn');
@@ -492,7 +462,12 @@ async function renderArticle(article) {
   if (!liked) likeBtn.addEventListener('click', () => handleLike(article.id, likeBtn));
 }
 
-// Renderização de código e matemática
+function normalizeImageUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}`;
+}
+
 function renderCodeAndMath() {
   if (typeof Prism !== 'undefined') Prism.highlightAll();
   if (typeof renderMathInElement !== 'undefined') {
@@ -534,7 +509,16 @@ function renderRelated(articles) {
     link.href = `?id=${a.id}`;
     link.className = 'related-card';
     let coverRelated = '';
-    if (a.cover_image) coverRelated = `<img src="${a.cover_image}" class="related-cover" loading="lazy" alt="">`;
+    if (a.cover_image) {
+      coverRelated = `
+        <img
+          src="${normalizeImageUrl(a.cover_image)}"
+          class="related-cover"
+          loading="lazy"
+          alt=""
+        >
+      `;
+    }
     link.innerHTML = `
       <div class="related-card-inner">
         ${coverRelated}
@@ -557,24 +541,6 @@ function escapeHtml(text) {
 
 // ---------- INICIALIZAÇÃO ----------
 async function init() {
-  // Aplica modo escuro salvo
-  applyDarkMode();
-  
-  // Configura botão de modo escuro no header (se existir)
-  const headerToggle = document.getElementById('dark-mode-toggle');
-  if (headerToggle) {
-    headerToggle.addEventListener('click', toggleDarkMode);
-    // Define o ícone inicial correto
-    const svg = headerToggle.querySelector('svg');
-    if (svg) {
-      if (darkMode) {
-        svg.innerHTML = '<path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M6 12a6 6 0 1 0 12 0 6 6 0 0 0-12 0z"/>';
-      } else {
-        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-      }
-    }
-  }
-  
   const id = getArticleId();
   if (!id) {
     articleContent.innerHTML = '<div class="error-message" style="text-align:center;padding:3rem 0;font-family:sans-serif;"><p>Artigo não especificado.</p><a href="../">← Voltar</a></div>';
