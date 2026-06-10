@@ -1,6 +1,5 @@
 // ==============================================
-// ler-artigo/script.js – Completo (sem modo escuro)
-// Apenas tema claro
+// ler-artigo/script.js – Responsivo + Lightbox
 // ==============================================
 
 const DEFAULT_FONT_SIZE = 1.5; // rem
@@ -329,6 +328,136 @@ function setupAudioButtons() {
   stopBtn.addEventListener('click', stopReading);
 }
 
+// ---------- LIGHTBOX (clique nas imagens amplia) ----------
+function setupImageLightbox() {
+  // Seleciona todas as imagens que estão no conteúdo do artigo (exceto capa e relacionados)
+  const images = document.querySelectorAll('.article-body img, .image-grid img');
+  if (!images.length) return;
+  
+  // Cria o overlay do lightbox
+  const lightbox = document.createElement('div');
+  lightbox.id = 'lightbox';
+  lightbox.style.cssText = `
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  `;
+  const lightboxImg = document.createElement('img');
+  lightboxImg.style.maxWidth = '90%';
+  lightboxImg.style.maxHeight = '90%';
+  lightboxImg.style.borderRadius = '8px';
+  lightboxImg.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+  lightbox.appendChild(lightboxImg);
+  document.body.appendChild(lightbox);
+  
+  // Fechar ao clicar no overlay ou tecla ESC
+  lightbox.addEventListener('click', () => {
+    lightbox.style.display = 'none';
+    lightboxImg.src = '';
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+      lightbox.style.display = 'none';
+      lightboxImg.src = '';
+    }
+  });
+  
+  // Adiciona evento de clique em cada imagem
+  images.forEach(img => {
+    img.style.cursor = 'pointer';
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lightboxImg.src = img.src;
+      lightbox.style.display = 'flex';
+    });
+  });
+}
+
+// ---------- CSS RESPONSIVO (injetado via JS para garantir) ----------
+function injectResponsiveCSS() {
+  if (document.getElementById('article-responsive-css')) return;
+  const style = document.createElement('style');
+  style.id = 'article-responsive-css';
+  style.textContent = `
+    /* Responsividade para celular */
+    @media (max-width: 768px) {
+      .article-container, .article-content, #article-content {
+        max-width: 100% !important;
+        padding: 0 1rem !important;
+      }
+      .article-title {
+        font-size: 1.6rem !important;
+      }
+      .article-meta {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+      }
+      .article-body {
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+      }
+      .article-body img {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+      .image-grid {
+        flex-direction: column !important;
+      }
+      .image-grid img {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+      }
+      .img-left, .img-right {
+        float: none !important;
+        display: block;
+        margin: 1rem auto !important;
+        max-width: 100% !important;
+      }
+      .audio-controls-top {
+        justify-content: center;
+      }
+      .article-toolbar {
+        justify-content: center;
+      }
+      .related-card-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+      .related-cover {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto 0.5rem;
+      }
+    }
+    /* Ajuste para desktop: artigos relacionados mais espaçados no topo */
+    @media (min-width: 769px) {
+      #related-articles {
+        margin-top: 3rem !important;
+      }
+    }
+    /* Estilo do lightbox */
+    #lightbox {
+      transition: opacity 0.2s;
+    }
+    #lightbox img {
+      transition: transform 0.2s;
+    }
+    #lightbox img:hover {
+      transform: scale(1.02);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // ---------- RENDER PRINCIPAL ----------
 async function renderArticle(article) {
   if (!article) {
@@ -448,10 +577,11 @@ async function renderArticle(article) {
   `;
 
   renderCodeAndMath();
-
   buildIndexNav(indexItems);
   setupProgressBar();
   setupAudioButtons();
+  setupImageLightbox();   // <-- ATIVA LIGHTBOX
+  injectResponsiveCSS();  // <-- INJETA CSS RESPONSIVO
 
   const citationBtn = document.getElementById('citation-btn');
   if (citationBtn) citationBtn.addEventListener('click', () => copyCitation(article));
