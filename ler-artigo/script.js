@@ -580,8 +580,9 @@ async function renderArticle(article) {
   buildIndexNav(indexItems);
   setupProgressBar();
   setupAudioButtons();
-  setupImageLightbox();   // <-- ATIVA LIGHTBOX
-  injectResponsiveCSS();  // <-- INJETA CSS RESPONSIVO
+  setupImageLightbox(); 
+  injectResponsiveCSS();  
+  initPlyrPlayers();
 
   const citationBtn = document.getElementById('citation-btn');
   if (citationBtn) citationBtn.addEventListener('click', () => copyCitation(article));
@@ -669,6 +670,27 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// ---------- INICIALIZAÇÃO DO PLYR.IO PARA VÍDEOS ----------
+function initPlyrPlayers() {
+  // Seleciona todos os vídeos (tag <video>) e iframes do YouTube/Vimeo dentro do artigo
+  const videoElements = document.querySelectorAll('.article-body video, .article-body iframe[src*="youtube"], .article-body iframe[src*="vimeo"]');
+  if (videoElements.length) {
+    videoElements.forEach(el => {
+      // Garante que o Plyr não seja aplicado mais de uma vez no mesmo elemento
+      if (!el.classList.contains('plyr')) {
+        new Plyr(el, {
+          controls: [
+            'play-large', 'play', 'progress', 'current-time', 'mute', 'volume',
+            'captions', 'settings', 'pip', 'airplay', 'fullscreen'
+          ],
+          settings: ['captions', 'quality', 'speed', 'loop'],
+          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+        });
+      }
+    });
+  }
+}
+
 // ---------- INICIALIZAÇÃO ----------
 async function init() {
   const id = getArticleId();
@@ -696,5 +718,8 @@ async function init() {
     await renderArticle(null);
   }
 }
+
+
+
 
 init();

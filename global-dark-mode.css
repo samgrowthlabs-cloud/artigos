@@ -472,3 +472,198 @@ body.dark-mode .final-message {
     padding: 0 1rem;
   }
 }
+
+/* ==============================================
+   MELHORIAS VISUAIS: TABELAS E VÍDEOS
+   (adicione ao final do style.css ou global-dark-mode.css)
+   ============================================== */
+
+/* ----- TABELAS RESPONSIVAS ----- */
+.article-body table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.8rem 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+/* Bordas e espaçamento interno */
+.article-body table th,
+.article-body table td {
+  border: 1px solid #e2e8f0;
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Cabeçalho */
+.article-body table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #1e293b;
+  border-bottom-width: 2px;
+}
+
+/* Linha zebrada (opcional, descomente se quiser) */
+/* .article-body table tr:nth-child(even) td {
+  background-color: #fafafa;
+} */
+
+/* Modo escuro para tabelas */
+body.dark-mode .article-body table th {
+  background: #1e2a36;
+  color: #e2e8f0;
+  border-color: #3f5568;
+}
+body.dark-mode .article-body table td {
+  border-color: #3f5568;
+  color: #cbd5e1;
+}
+/* body.dark-mode .article-body table tr:nth-child(even) td {
+  background-color: #11161d;
+} */
+
+/* ----- VÍDEOS RESPONSIVOS (tag <video> e iframes) ----- */
+.article-body video,
+.article-body iframe[src*="youtube"],
+.article-body iframe[src*="vimeo"] {
+  max-width: 100%;
+  height: auto;
+  border-radius: 20px;
+  display: block;
+  margin: 1.8rem auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  background: #000;
+}
+
+/* Para vídeos do YouTube (garante aspect ratio 16:9) */
+.article-body iframe[src*="youtube"] {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+/* ----- FIGURAS COM LEGENDA (caso use <figure><figcaption>) ----- */
+.article-body figure {
+  margin: 1.8rem 0;
+  text-align: center;
+}
+.article-body figcaption {
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-top: 0.6rem;
+  font-style: italic;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body.dark-mode .article-body figcaption {
+  color: #9ca3af;
+}
+
+/* ----- LIGHTBOX (melhoria no fundo) ----- */
+#lightbox {
+  background: rgba(0, 0, 0, 0.94) !important;
+  backdrop-filter: blur(6px);
+}
+#lightbox img {
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.3);
+}
+
+/* ----- AJUSTES MÓVEIS (tabelas e vídeos) ----- */
+@media (max-width: 640px) {
+  .article-body table th,
+  .article-body table td {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .article-body video,
+  .article-body iframe[src*="youtube"] {
+    border-radius: 14px;
+  }
+}
+
+/* ==============================================
+   PLYR.IO – DESIGN PREMIUM (borda, sombra, glow)
+   ============================================== */
+
+/* Container principal do player */
+.plyr {
+  border-radius: 24px !important;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+/* Borda sutil (com gradiente animado) */
+.plyr {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-image: linear-gradient(white, white), 
+                    linear-gradient(135deg, #0D8F81, #2c9e8f, #6ab0a5);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Modo escuro – borda com cores mais vibrantes */
+body.dark-mode .plyr {
+  background-image: linear-gradient(#111418, #111418), 
+                    linear-gradient(135deg, #00144d, #4a9eff, #0D8F81);
+}
+
+/* Efeito hover: sobe um pouco + glow */
+.plyr:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(13, 143, 129, 0.3);
+}
+
+/* Barra de controles – gradiente escuro suave */
+.plyr__controls {
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%);
+  border-radius: 0 0 24px 24px;
+}
+
+/* Botão de play central (overlay) */
+.plyr__control--overlaid {
+  background: rgba(13, 143, 129, 0.9) !important;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s, background 0.2s;
+}
+.plyr__control--overlaid:hover {
+  background: #0D8F81 !important;
+  transform: scale(1.05);
+}
+
+/* Indicador de progresso */
+.plyr__progress--played,
+.plyr__volume--played {
+  background: #0D8F81 !important;
+}
+
+/* Tempo e texto dos botões */
+.plyr__time {
+  color: #eee;
+  font-weight: 500;
+}
+
+/* Menu de configurações (velocidade, qualidade) */
+.plyr__menu__container {
+  background: #1e2a36;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.plyr__menu__container .plyr__control--forward,
+.plyr__menu__container .plyr__control--back {
+  color: #e0e4e8;
+}
+
+/* Modo escuro (reforço) */
+body.dark-mode .plyr {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(13, 143, 129, 0.2);
+}
+body.dark-mode .plyr:hover {
+  box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(13, 143, 129, 0.5);
+}
