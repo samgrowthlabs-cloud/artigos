@@ -79,7 +79,7 @@ nav a:hover { color: #000; text-decoration: underline; }
 
 /* ---------- CONTAINER DO ARTIGO ---------- */
 .article-container {
-  max-width: 700px;
+  max-width: 860px;
   margin: 0 auto;
   padding: 3rem 2rem 4rem;
   flex: 1;
@@ -147,7 +147,7 @@ nav a:hover { color: #000; text-decoration: underline; }
 
 /* ---------- CONTEÚDO ---------- */
 .article-body {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.8;
   color: #1a1a1a;
   font-family: 'Charter', 'Georgia', 'Times New Roman', serif;
@@ -299,6 +299,12 @@ nav a:hover { color: #000; text-decoration: underline; }
   .related-card-inner { flex-direction: row; align-items: center; }
   .related-cover { width: 80px; height: 80px; aspect-ratio: 1/1; flex-shrink: 0; }
   .related-card-content h3 { font-size: 0.9rem; }
+}
+
+@media (min-width: 1440px) {
+  .article-container {
+    max-width: 920px;
+  }
 }
 
 /* ==============================================
