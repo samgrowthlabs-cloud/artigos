@@ -1,5 +1,5 @@
 /* ==============================================
-   Página Sobre – mesmo estilo do site
+   Página de Contato – mesmo estilo do site
    ============================================== */
 * {
   margin: 0;
@@ -11,7 +11,7 @@ body {
   font-family: 'Charter', 'Georgia', 'Times New Roman', serif;
   background: #fff;
   color: #111;
-  line-height: 1.7;
+  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -78,17 +78,64 @@ nav a:hover, nav a.active {
 }
 .page-content h1 {
   font-size: 2.4rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .page-content p {
   margin-bottom: 1.5rem;
   color: #2d3748;
 }
-.about-content p strong {
-  color: #0D8F81;
+.contact-form {
+  margin-top: 2rem;
 }
-
+.form-group {
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.9rem;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0D8F81;
+  box-shadow: 0 0 0 2px rgba(13,143,129,0.2);
+}
+.btn-submit {
+  background: #0D8F81;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-submit:hover {
+  background: #0a6e63;
+  transform: translateY(-1px);
+}
+.form-feedback {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: #e6fffa;
+  color: #234e52;
+  font-size: 0.9rem;
+}
 .site-footer {
   border-top: 1px solid #eee;
   text-align: center;
@@ -115,6 +162,7 @@ nav a:hover, nav a.active {
   text-decoration: underline;
 }
 
+/* Responsivo */
 @media (max-width: 640px) {
   .header-inner { padding: 0.8rem 1rem; }
   nav a { margin-left: 0.8rem; font-size: 0.8rem; }
@@ -122,8 +170,22 @@ nav a:hover, nav a.active {
   .page-content h1 { font-size: 1.8rem; }
 }
 
+/* Modo escuro (complementar ao global) */
 body.dark-mode .page-content p { color: #cbd5e1; }
-body.dark-mode .about-content p strong { color: #85b0df; }
-body.dark-mode .site-footer { border-top-color: #2a2f36; }
-body.dark-mode .footer-nav a { color: #9ca3af; }
-body.dark-mode .footer-nav a:hover { color: #fff; }
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  background: #1e2a36;
+  border-color: #3f5568;
+  color: #e0e4e8;
+}
+body.dark-mode .form-feedback {
+  background: #1e3a3a;
+  color: #b2f5ea;
+}
+
+/* igual ao style.css do contato, adicionando: */
+.privacy-content h2 {
+  font-size: 1.4rem;
+  margin: 1.8rem 0 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato – BIDARTIGOS</title>
+  <meta name="description" content="Entre em contato conosco para sugestões, relatar erros ou conversar sobre o conteúdo do BIDARTIGOS.">
+  <meta property="og:title" content="Contato – BIDARTIGOS">
+  <meta property="og:description" content="Envie sua mensagem para a equipe do BIDARTIGOS. Estamos abertos a sugestões, correções e parcerias.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'/><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'/></svg>">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../global-dark-mode.css">
+  <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VQHEXNMFW5"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-VQHEXNMFW5');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8061535180990391"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../" class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        BIDARTIGOS
+      </a>
+      <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Modo escuro">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <nav>
+        <a href="../">Início</a>
+        <a href="../sobre/">Sobre</a>
+        <a href="../contato/" class="active">Contato</a>
+        <a href="../privacidade/">Privacidade</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <div class="page-content">
+      <h1>Contato</h1>
+      <p>Obrigado pelo interesse em se comunicar com a equipe do <strong>BIDARTIGOS</strong>. Utilizamos este espaço para receber sugestões, reportar erros nos artigos ou simplesmente trocar ideias sobre os temas que abordamos.</p>
+      <p>Preencha o formulário abaixo e sua mensagem será enviada diretamente para nosso e‑mail. Respondemos sempre que possível.</p>
+
+      <form id="contact-form" class="contact-form">
+        <div class="form-group">
+          <label for="name">Nome completo</label>
+          <input type="text" id="name" name="name" required placeholder="Seu nome">
+        </div>
+        <div class="form-group">
+          <label for="email">E‑mail</label>
+          <input type="email" id="email" name="email" required placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label for="subject">Assunto</label>
+          <input type="text" id="subject" name="subject" required placeholder="Ex.: Sugestão de artigo, erro encontrado...">
+        </div>
+        <div class="form-group">
+          <label for="message">Mensagem</label>
+          <textarea id="message" name="message" rows="6" required placeholder="Digite sua mensagem..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Enviar mensagem</button>
+        <p id="form-feedback" class="form-feedback" style="display:none;"></p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a href="../sobre/">Sobre</a>
+        <a href="../contato/">Contato</a>
+        <a href="../privacidade/">Privacidade</a>
+      </div>
+      <p>© 2026 BIDARTIGOS</p>
+    </div>
+  </footer>
+
+  <script src="../config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
