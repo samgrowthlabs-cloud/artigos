@@ -667,3 +667,30 @@ body.dark-mode .plyr {
 body.dark-mode .plyr:hover {
   box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(13, 143, 129, 0.5);
 }
+
+/* Modo escuro */
+body.dark-mode .related-card {
+  background: #12161c;
+  border-color: #2a2f36;
+}
+body.dark-mode .related-card:hover {
+  border-color: #4a627a;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+}
+body.dark-mode .related-card-content h3 {
+  color: #e2e8f0;
+}
+body.dark-mode .related-date {
+  color: #95a5b8;
+}
+/* Responsivo: no celular continua o layout que você já tem (linha com imagem à esquerda) */
+@media (max-width: 600px) {
+  .related-card .related-cover {
+    width: 70px;
+    height: 70px;
+    aspect-ratio: 1/1;
+  }
+  .related-card:hover .related-cover {
+    transform: none;
+  }
+}
